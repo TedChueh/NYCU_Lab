@@ -1,5 +1,7 @@
-# NYCU Lab Code
-這個Repo含有以下課程實驗程式碼 主要為學習輔助用途 請自行使用 !任何後果請自負!\
+# NYCU Lab
+這個Repo含有以下課程實驗程式碼 主要為學習輔助用途 請自行使用 !任何後果請自負!
+
+## Lab Code
 515105 數位實驗 Digital Laboratory\
 515111 微算機原理與實驗 Principle of Microcomputer\  
 
