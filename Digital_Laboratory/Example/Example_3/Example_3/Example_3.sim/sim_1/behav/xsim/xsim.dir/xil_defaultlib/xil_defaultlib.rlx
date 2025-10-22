@@ -1,8 +1,0 @@
-0.7
-2020.2
-Nov  8 2024
-22:36:57
-C:/FPGA_Verilog_work/Project/Example_3/Example_3.sim/sim_1/behav/xsim/glbl.v,1724786425,verilog,,,,glbl,,,,,,,,
-C:/FPGA_Verilog_work/Project/Example_3_verilog/bit_full_adder.v,1744739492,verilog,,C:/FPGA_Verilog_work/Project/Example_3_verilog/bit_half_adder.v,,bit_full_adder,,,,,,,,
-C:/FPGA_Verilog_work/Project/Example_3_verilog/bit_half_adder.v,1744738359,verilog,,C:/FPGA_Verilog_work/Project/Example_3_verilog/tb_Example_3.v,,bit_half_adder,,,,,,,,
-C:/FPGA_Verilog_work/Project/Example_3_verilog/tb_Example_3.v,1744739196,verilog,,,,tb_Example_3,,,,,,,,
