@@ -1,0 +1,10 @@
+	ORG   00H
+	AJMP  MAIN
+	ORG   50H
+MAIN:
+	MOV  P0, #0FFH 
+	
+LOOP:
+	MOV   A,  P0
+	MOV   P1, A
+	JMP LOOP
