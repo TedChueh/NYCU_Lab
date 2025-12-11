@@ -1,0 +1,191 @@
+	ORG 00H
+	AJMP INIT
+
+	ORG 0BH
+	AJMP TIMER0_ISR
+
+	ORG 013H
+	AJMP LOAD_DISTANCE
+
+	ORG 50H
+
+SEG_DATA:
+	DB 03H
+	DB 09FH
+	DB 025H
+	DB 0DH
+	DB 099H
+	DB 049H
+	DB 041H
+	DB 01FH
+	DB 01H
+	DB 09H
+
+INIT:
+	MOV DPTR, #SEG_DATA
+	MOV TMOD, #0D1H 
+	MOV P1, #00H 
+	MOV P2, #0FFH ;segment display output
+	MOV P0, #01110111B ;initial value for display shift register
+
+	
+	MOV R0, #00H ;tens/ single digit units
+	MOV R1, #00H ;thousands/ hundreds digit
+
+	MOV R6, #00H ;loop counter for display multiplexing
+	MOV R7, #010H ;loop counter for 16 bits	
+	
+	SETB EX1 ;external interrupt 1
+	SETB IT1 ;edge triggered
+	SETB ET0 ;enable timer0 interrupt
+	SETB EA  ;enable global interrupt
+	
+	SETB TR0 ;start timer0
+	SETB TR1 ;start timer1
+
+LOOP:
+	JMP LOOP
+
+DISPLAY:
+	MOV A, P0
+	RR A
+	MOV P0, A
+
+DISPLAY_DIGIT3:
+	CJNE A, #01110111B, DISPLAY_DIGIT2
+	MOV A, R1
+	ANL A, #0F0H
+	SWAP A
+	MOVC A, @A+DPTR
+	MOV P2, A
+	RET
+
+DISPLAY_DIGIT2:
+	CJNE A, #10111011B, DISPLAY_DIGIT1
+	MOV A, R1
+	ANL A, #0FH
+	MOVC A, @A+DPTR
+	MOV P2, A
+	RET
+
+DISPLAY_DIGIT1:
+	CJNE A, #11011101B, DISPLAY_DIGIT0
+	MOV A, R0
+	ANL A, #0F0H
+	SWAP A
+	MOVC A, @A+DPTR
+	MOV P2, A
+	RET
+
+DISPLAY_DIGIT0:
+	CJNE A, #11101110B, DEFAULT
+	MOV A, R0
+	ANL A, #0FH
+	MOVC A, @A+DPTR
+	MOV P2, A
+	RET
+
+DEFAULT:
+	RET
+
+DOUBLE_DABBLE_ALGORITHM:
+    MOV R0, #00H        ; low 2 BCD digits
+    MOV R1, #00H        ; high 2 BCD digits
+    MOV R7, #10H        ; 16 bits loop
+
+ADJUST_DIGIT:
+
+ADJUST_DIGIT3:
+    MOV A, R1
+    ANL A, #0F0H
+	CLR C
+	SUBB A, #050H
+    JC ADJUST_DIGIT2
+    MOV A, R1
+    ADD A, #30H         
+    MOV R1, A
+
+ADJUST_DIGIT2:
+    MOV A, R1
+    ANL A, #0FH
+	CLR C
+	SUBB A, #05H
+    JC ADJUST_DIGIT1
+    MOV A, R1
+    ADD A, #03H         
+    MOV R1, A
+
+ADJUST_DIGIT1:
+    MOV A, R0
+    ANL A, #0F0H
+	CLR C
+	SUBB A, #050H
+    JC ADJUST_DIGIT0
+    MOV A, R0
+    ADD A, #30H         
+    MOV R0, A
+
+ADJUST_DIGIT0:
+    MOV A, R0
+    ANL A, #0FH
+	CLR C
+	SUBB A, #05H
+    JC SHIFT_LEFT
+    MOV A, R0
+    ADD A, #03H        
+    MOV R0, A
+
+SHIFT_LEFT:
+    CLR C
+
+    MOV A, TL1
+    RLC A
+    MOV TL1, A
+
+    MOV A, TH1
+    RLC A
+    MOV TH1, A
+
+    MOV A, R0
+    RLC A
+    MOV R0, A
+
+    MOV A, R1
+    RLC A
+    MOV R1, A
+
+END_DOUBLE_DABBLE:
+    DJNZ R7, ADJUST_DIGIT
+    RET
+
+TIMER0_ISR:
+	PUSH ACC
+	CJNE R6, #08FH, INVERT_P1
+	MOV R6, #00H
+	ACALL DISPLAY
+
+INVERT_P1:
+	INC R6
+	MOV A, P1
+	CPL A
+	MOV P1, A
+	MOV TH0, #0FFH
+	MOV TL0, #0E3H
+	CLR TF0
+	POP ACC
+	RETI
+
+LOAD_DISTANCE:
+	PUSH ACC
+	CLR TR1
+	ACALL DOUBLE_DABBLE_ALGORITHM
+	MOV A, TH1
+	CLR A
+	MOV TH1, A
+	MOV A, TL1
+	CLR A
+	MOV TL1, A
+	SETB TR1
+	POP ACC
+	RETI
+	END

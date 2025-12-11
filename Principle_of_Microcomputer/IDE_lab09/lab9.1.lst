@@ -1,0 +1,141 @@
+A51 MACRO ASSEMBLER  LAB9_1                                                               11/18/2025 18:48:52 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab9.1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab09.2\lab9.1.asm SET(SMALL) DEBUG PRINT(.\lab9.1.lst) OBJECT(.\lab9.1
+                      .obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 01B0              2             AJMP INIT
+                       3     
+0003                   4             ORG 03H
+0003 01D5              5             AJMP DETECTED_IR_SIGNAL
+                       6     
+0050                   7             ORG 50H
+                       8     
+0050                   9     CHARACTER_TABLE:
+                      10             ;別 
+0050 FF7FC1BF         11             DB 0FFH,07FH,0C1H,0BFH,0DDH,0CFH,05DH,0F0H 
+0054 DDCF5DF0                
+0058 DDBDDD7D         12             DB 0DDH,0BDH,0DDH,07DH,0DDH,0BDH,0C1H,0C1H 
+005C DDBDC1C1                
+0060 FFFFFFFF         13             DB 0FFH,0FFH,0FFH,0FFH,007H,0F0H,0FFH,0BFH 
+0064 07F0FFBF                
+0068 FF7F0080         14             DB 0FFH,07FH,000H,080H,0FFH,0FFH,0FFH,0FFH 
+006C FFFFFFFF                
+                      15             ;當 
+0070 DFFFE7FF         16             DB 0DFH,0FFH,0E7H,0FFH,0F7H,003H,015H,0AAH 
+0074 F70315AA                
+0078 D3AAD7AA         17             DB 0D3H,0AAH,0D7H,0AAH,0D7H,0AAH,0D0H,082H 
+007C D7AAD082                
+0080 D7AAD7AA         18             DB 0D7H,0AAH,0D7H,0AAH,0D3H,0AAH,015H,0AAH 
+0084 D3AA15AA                
+0088 F703D7FF         19             DB 0F7H,003H,0D7H,0FFH,0E7H,0FFH,0FFH,0FFH 
+008C E7FFFFFF                
+                      20             ;我 
+0090 DFFFDBF7         21             DB 0DFH,0FFH,0DBH,0F7H,0DBH,0B7H,0DBH,07BH 
+0094 DBB7DB7B                
+0098 0180DCFD         22             DB 001H,080H,0DCH,0FDH,0DDH,0BEH,0DFH,0BFH 
+009C DDBEDFBF                
+00A0 DFDF00EC         23             DB 0DFH,0DFH,000H,0ECH,0DFH,0F3H,0DDH,0EBH 
+00A4 DFF3DDEB                
+00A8 D3DD5FBE         24             DB 0D3H,0DDH,05FH,0BEH,0DFH,007H,0FFH,0FFH 
+00AC DF07FFFF                
+                      25     
+00B0                  26     INIT:
+00B0 758901           27             MOV TMOD, #01H
+00B3 900050           28             MOV DPTR, #CHARACTER_TABLE
+00B6 7580FF           29             MOV P0, #0FFH
+00B9 7590FF           30             MOV P1, #0FFH
+00BC 75A0FF           31             MOV P2, #0FFH
+00BF 75C0FF           32             MOV 0C0H, #0FFH
+                      33     
+00C2 7A30             34             MOV R2, #030H
+                      35     
+00C4 75A881           36             MOV IE, #10000001B   ; EA=1, EX0=1
+00C7 758801           37         MOV TCON, #00000001B ; IT0=1 
+                      38     
+00CA                  39     LOOP:
+00CA 11CE             40             ACALL SETCENTERLED
+00CC 80FC             41             JMP LOOP
+                      42     
+00CE                  43     SETCENTERLED:
+00CE 758000           44             MOV P0, #00H
+00D1 7590FF           45             MOV P1, #0FFH
+A51 MACRO ASSEMBLER  LAB9_1                                                               11/18/2025 18:48:52 PAGE     2
+
+00D4 22               46             RET
+                      47             
+00D5                  48     DETECTED_IR_SIGNAL:
+00D5 7580FF           49             MOV P0, #0FFH   
+00D8 759000           50             MOV P1, #00H
+00DB 11DE             51             ACALL DISPLAY
+00DD 32               52             RETI
+                      53     
+00DE                  54     DISPLAY:
+00DE                  55     DISPLAY_INIT:
+00DE 900050           56             MOV DPTR, #CHARACTER_TABLE
+00E1 7A30             57             MOV R2, #030H
+                      58     
+00E3                  59     DISPLAY_MAIN:
+00E3 E4               60             CLR A
+00E4 93               61             MOVC A, @A+DPTR
+00E5 F5A0             62             MOV P2, A
+00E7 A3               63             INC DPTR
+                      64             
+00E8 E4               65             CLR A
+00E9 93               66             MOVC A, @A+DPTR
+00EA F5C0             67             MOV 0C0H, A
+00EC A3               68             INC DPTR
+00ED 11F8             69             ACALL DELAY25muS
+00EF DAF2             70             DJNZ R2, DISPLAY_MAIN
+                      71             
+00F1 75A0FF           72             MOV P2, #0FFH
+00F4 75C0FF           73             MOV 0C0H, #0FFH
+00F7 22               74             RET
+                      75     
+00F8                  76     DELAY25muS:
+00F8 758CFE           77             MOV TH0, #0FEH
+00FB 758AF7           78             MOV TL0, #0F7H
+00FE D28C             79             SETB TR0        
+0100 308DFD           80             JNB TF0, $
+0103 C28C             81             CLR TR0
+0105 C28D             82             CLR TF0
+0107 22               83             RET
+                      84             END
+A51 MACRO ASSEMBLER  LAB9_1                                                               11/18/2025 18:48:52 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+CHARACTER_TABLE. .  C ADDR   0050H   A   
+DELAY25MUS . . . .  C ADDR   00F8H   A   
+DETECTED_IR_SIGNAL  C ADDR   00D5H   A   
+DISPLAY. . . . . .  C ADDR   00DEH   A   
+DISPLAY_INIT . . .  C ADDR   00DEH   A   
+DISPLAY_MAIN . . .  C ADDR   00E3H   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INIT . . . . . . .  C ADDR   00B0H   A   
+LOOP . . . . . . .  C ADDR   00CAH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+SETCENTERLED . . .  C ADDR   00CEH   A   
+TCON . . . . . . .  D ADDR   0088H   A   
+TF0. . . . . . . .  B ADDR   0088H.5 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

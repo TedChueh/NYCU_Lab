@@ -1,0 +1,112 @@
+BL51 BANKED LINKER/LOCATER V6.15                                                        11/25/2025  12:53:31  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.15, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE .\lab9.3.obj TO lab1.1 RAMSIZE (256) CODE (0X0000-0XFFFF) XDATA (0X0000-0X03FF)
+
+
+INPUT MODULES INCLUDED:
+  .\lab9.3.obj (LAB9_3)
+
+
+LINK MAP OF MODULE:  lab1.1 (LAB9_3)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     012EH     ABSOLUTE     
+
+
+
+SYMBOL TABLE OF MODULE:  lab1.1 (LAB9_3)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        LAB9_3
+  C:0050H         SYMBOL        CHARACTER_TABLE
+  C:011EH         SYMBOL        DELAY25MUS
+  C:00EBH         SYMBOL        DETECTED_IR_SIGNAL
+  C:00EEH         SYMBOL        DISPLAY
+  C:00EEH         SYMBOL        DISPLAY_INIT
+  C:00F0H         SYMBOL        DISPLAY_MAIN
+  C:00F0H         SYMBOL        DISPLAY_PORT2
+  C:00F5H         SYMBOL        DISPLAY_PORT2_MAIN
+  C:00FCH         SYMBOL        DISPLAY_PORT4
+  C:0101H         SYMBOL        DISPLAY_PORT4_MAIN
+  D:00A8H         SYMBOL        IE
+  C:00D0H         SYMBOL        INIT
+  C:00E9H         SYMBOL        LOOP
+  D:0080H         SYMBOL        P0
+  D:0090H         SYMBOL        P1
+  D:00A0H         SYMBOL        P2
+  C:011BH         SYMBOL        RESET_R0
+  D:0088H         SYMBOL        TCON
+  B:0088H.5       SYMBOL        TF0
+  D:008CH         SYMBOL        TH0
+  D:008AH         SYMBOL        TL0
+  D:0089H         SYMBOL        TMOD
+  B:0088H.4       SYMBOL        TR0
+  C:0000H         LINE#         2
+  C:0003H         LINE#         5
+  C:00D0H         LINE#         33
+  C:00D3H         LINE#         34
+  C:00D6H         LINE#         35
+  C:00D9H         LINE#         36
+  C:00DCH         LINE#         37
+BL51 BANKED LINKER/LOCATER V6.15                                                      11/25/2025  12:53:31  PAGE 2
+
+
+  C:00DFH         LINE#         39
+  C:00E1H         LINE#         40
+  C:00E3H         LINE#         42
+  C:00E6H         LINE#         43
+  C:00E9H         LINE#         46
+  C:00EBH         LINE#         49
+  C:00EDH         LINE#         50
+  C:00EEH         LINE#         54
+  C:00F0H         LINE#         59
+  C:00F3H         LINE#         60
+  C:00F5H         LINE#         63
+  C:00F6H         LINE#         64
+  C:00F7H         LINE#         65
+  C:00F9H         LINE#         66
+  C:00FBH         LINE#         67
+  C:00FCH         LINE#         70
+  C:00FFH         LINE#         71
+  C:0101H         LINE#         74
+  C:0102H         LINE#         75
+  C:0103H         LINE#         76
+  C:0105H         LINE#         77
+  C:0107H         LINE#         78
+  C:0108H         LINE#         79
+  C:010AH         LINE#         80
+  C:010CH         LINE#         82
+  C:010FH         LINE#         83
+  C:0112H         LINE#         84
+  C:0115H         LINE#         85
+  C:0118H         LINE#         86
+  C:0119H         LINE#         87
+  C:011AH         LINE#         88
+  C:011BH         LINE#         91
+  C:011DH         LINE#         92
+  C:011EH         LINE#         95
+  C:0121H         LINE#         96
+  C:0124H         LINE#         97
+  C:0126H         LINE#         98
+  C:0129H         LINE#         99
+  C:012BH         LINE#         100
+  C:012DH         LINE#         101
+  -------         ENDMOD        LAB9_3
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 00E2H BYTE (11%) *
+******************************************************************************
+
+Program Size: data=8.0 xdata=0 code=302
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

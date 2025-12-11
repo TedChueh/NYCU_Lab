@@ -1,0 +1,310 @@
+A51 MACRO ASSEMBLER  LAB12_3                                                              12/09/2025 20:05:55 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab12.3.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab12\lab12.3.asm SET(SMALL) DEBUG PRINT(.\lab12.3.lst) OBJECT(.\lab12.
+                      3.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0157              2             AJMP INIT
+                       3     
+000B                   4             ORG 0BH
+000B 01E6              5             AJMP TIMER0_ISR
+                       6     
+0023                   7             ORG 23H
+0023 01F8              8             AJMP SERIAL_ISR
+                       9     
+0050                  10             ORG 50H
+                      11     
+0050                  12     MODE3_TABLE:
+0050 07               13             DB 07H
+0051 01               14             DB 01H
+0052 06               15             DB 06H
+0053 02               16             DB 02H
+0054 05               17             DB 05H
+0055 03               18             DB 03H
+0056 04               19             DB 04H
+                      20     
+0057                  21     INIT:
+0057 900050           22             MOV DPTR, #MODE3_TABLE
+005A 758921           23             MOV TMOD, #00100001B ;timer1 mode2, timer0 mode1
+005D 759850           24             MOV SCON, #01010000B ;serial mode1, REN enabled
+0060 75A892           25             MOV IE,   #10010010B ;enable global, serial interrupt and timer0 interrupt
+0063 438780           26             ORL PCON,#10000000B  ;SETTING PCON.7 SMOD 1 BAUD RATE =FORCS/32 TI
+0066 758DF3           27             MOV TH1,#0F3H
+0069 758BF3           28             MOV TL1,#0F3H
+                      29             
+006C 7900             30             MOV R1, #00H  ;Sequence Temporary Register
+006E 7A00             31             MOV R2, #00H  ;Buzzer Mode Flag
+0070 7B00             32             MOV R3, #00H  ;TH1
+0072 7C00             33             MOV R4, #00H  ;TL1
+0074 758000           34             MOV P0, #00H  ;Buzzer Output
+                      35     
+0077 D28E             36             SETB TR1 ;start timer1
+                      37     
+0079                  38     LOOP:
+0079 117D             39             ACALL SELECT_MODE
+007B 80FC             40             JMP LOOP
+                      41     
+007D                  42     SELECT_MODE:
+007D                  43     SELECT_MODE1:
+007D BA0116           44             CJNE R2, #01H, SELECT_MODE2
+0080                  45     BUZZ_MODE1_INIT:
+0080 11CE             46             ACALL TIMER1_MODE1
+0082 7407             47             MOV A, #07H
+0084                  48     BUZZ_MODE1_MAIN:
+0084 312A             49             ACALL BUZZER_CHOOSE_FREQ
+0086 7E02             50             MOV R6, #02H
+0088 7FFA             51             MOV R7, #0FAH
+008A D28C             52             SETB TR0
+008C 3166             53             ACALL DELAY500ms
+008E 14               54             DEC A
+008F B400F2           55             CJNE A, #00H, BUZZ_MODE1_MAIN
+0092 11D6             56             ACALL TIMER1_MODE2
+0094 8035             57             JMP DEFAULT
+A51 MACRO ASSEMBLER  LAB12_3                                                              12/09/2025 20:05:55 PAGE     2
+
+                      58     
+0096                  59     SELECT_MODE2:
+0096 BA0216           60             CJNE R2, #02H, SELECT_MODE3
+0099                  61     BUZZ_MODE2_INIT:
+0099 11CE             62             ACALL TIMER1_MODE1
+009B 7401             63             MOV A,  #01H
+009D                  64     BUZZ_MODE2_MAIN:
+009D 312A             65             ACALL BUZZER_CHOOSE_FREQ
+009F 7E02             66             MOV R6, #02H
+00A1 7FFA             67             MOV R7, #0FAH
+00A3 D28C             68             SETB TR0
+00A5 3166             69             ACALL DELAY500ms
+00A7 04               70             INC A
+00A8 B408F2           71             CJNE A, #08H, BUZZ_MODE2_MAIN
+00AB 11D6             72             ACALL TIMER1_MODE2
+00AD 801C             73             JMP DEFAULT
+                      74     
+00AF                  75     SELECT_MODE3:
+00AF BA0319           76             CJNE R2, #03H, DEFAULT
+00B2                  77     BUZZ_MODE3_INIT:
+00B2 11CE             78             ACALL TIMER1_MODE1
+00B4 7401             79             MOV A,  #01H
+00B6                  80     BUZZ_MODE3_MAIN:
+00B6 F9               81             MOV R1, A
+00B7 93               82             MOVC A, @A+DPTR
+00B8 312A             83             ACALL BUZZER_CHOOSE_FREQ
+00BA 7E02             84             MOV R6, #02H
+00BC 7FFA             85             MOV R7, #0FAH
+00BE D28C             86             SETB TR0
+00C0 3166             87             ACALL DELAY500ms
+00C2 E9               88             MOV A, R1
+00C3 04               89             INC A
+00C4 B408EF           90             CJNE A, #08H, BUZZ_MODE3_MAIN
+00C7 11D6             91             ACALL TIMER1_MODE2
+00C9 8000             92             JMP DEFAULT
+                      93     
+00CB                  94     DEFAULT:
+00CB 7A00             95             MOV R2, #00H
+00CD 22               96             RET
+                      97     
+00CE                  98     TIMER1_MODE1:
+00CE C28C             99             CLR TR0
+00D0 C28E            100             CLR TR1
+00D2 758911          101             MOV TMOD, #00010001B ;timer1 mode1, timer0 mode1
+00D5 22              102             RET
+                     103     
+00D6                 104     TIMER1_MODE2:
+00D6 C28C            105             CLR TR0
+00D8 C28E            106             CLR TR1
+00DA 758921          107             MOV TMOD, #00100001B ;timer1 mode2, timer0 mode1
+00DD 758DF3          108             MOV TH1, #0F3H       ;4800 baud rate
+00E0 758BF3          109             MOV TL1, #0F3H
+00E3 D28E            110             SETB TR1
+00E5 22              111             RET
+                     112     
+00E6                 113     TIMER0_ISR:
+00E6 C0E0            114             PUSH  ACC
+00E8 C28C            115             CLR   TR0
+00EA 8B8C            116             MOV   TH0, R3
+00EC 8C8A            117             MOV   TL0, R4
+00EE E580            118             MOV   A, P0
+00F0 F4              119             CPL   A
+00F1 F580            120             MOV   P0, A
+00F3 D28C            121             SETB  TR0
+00F5 D0E0            122             POP   ACC
+00F7 32              123             RETI
+A51 MACRO ASSEMBLER  LAB12_3                                                              12/09/2025 20:05:55 PAGE     3
+
+                     124     
+00F8                 125     SERIAL_ISR:
+00F8 C0E0            126             PUSH ACC
+00FA 209809          127             JB RI, RECEIVE_CHAR
+00FD 20990E          128             JB TI, TRANSMIT_CHAR
+0100 C298            129             CLR RI
+0102 C299            130             CLR TI
+0104 800C            131             JMP EXIT_ISR
+                     132     
+0106                 133     RECEIVE_CHAR:
+0106 E599            134             MOV A, SBUF
+0108 3115            135             ACALL CHOOSE_MODE
+010A C298            136             CLR RI
+010C 8004            137             JMP EXIT_ISR
+                     138     
+010E                 139     TRANSMIT_CHAR:
+010E C299            140             CLR TI
+0110 8000            141             JMP EXIT_ISR
+                     142     
+0112                 143     EXIT_ISR:
+0112 D0E0            144             POP ACC
+0114 32              145             RETI
+                     146     
+0115                 147     CHOOSE_MODE:
+0115                 148     CHOOSE_MODE1:
+0115 B43103          149             CJNE A, #031H, CHOOSE_MODE2
+0118 7A01            150             MOV R2, #01H
+011A 22              151             RET
+                     152     
+011B                 153     CHOOSE_MODE2:
+011B B43203          154             CJNE A, #032H, CHOOSE_MODE3
+011E 7A02            155             MOV R2, #02H
+0120 22              156             RET
+                     157     
+0121                 158     CHOOSE_MODE3:
+0121 B43303          159             CJNE A, #033H, NO_CHOICE
+0124 7A03            160             MOV R2, #03H
+0126 22              161             RET
+                     162     
+0127                 163     NO_CHOICE:
+0127 7A00            164             MOV R2, #00H
+0129 22              165             RET
+                     166     
+012A                 167     BUZZER_CHOOSE_FREQ:
+012A                 168     BUZZER_D0:
+012A B40105          169             CJNE A, #01H, BUZZER_RE
+012D 7BFC            170                     MOV R3, #0FCH
+012F 7C8F            171                     MOV R4, #08FH
+0131 22              172                     RET
+                     173     
+0132                 174     BUZZER_RE:
+0132 B40205          175             CJNE A, #02H, BUZZER_MI
+0135 7BFC            176                     MOV R3, #0FCH
+0137 7CEF            177                     MOV R4, #0EFH
+0139 22              178                     RET
+                     179     
+013A                 180     BUZZER_MI:
+013A B40305          181             CJNE A, #03H, BUZZER_FA
+013D 7BFD            182                     MOV R3, #0FDH
+013F 7C45            183                     MOV R4, #045H
+0141 22              184                     RET
+                     185     
+0142                 186     BUZZER_FA:
+0142 B40405          187             CJNE A, #04H, BUZZER_SO
+0145 7BFD            188                     MOV R3, #0FDH
+0147 7C6C            189                     MOV R4, #06CH
+A51 MACRO ASSEMBLER  LAB12_3                                                              12/09/2025 20:05:55 PAGE     4
+
+0149 22              190                     RET
+                     191     
+014A                 192     BUZZER_SO:
+014A B40505          193             CJNE A, #05H, BUZZER_LA
+014D 7BFD            194                     MOV R3, #0FDH
+014F 7CB4            195                     MOV R4, #0B4H
+0151 22              196                     RET
+                     197     
+0152                 198     BUZZER_LA:
+0152 B40605          199             CJNE A, #06H, BUZZER_SI
+0155 7BFD            200                     MOV R3, #0FDH
+0157 7CF4            201                     MOV R4, #0F4H
+0159 22              202                     RET
+                     203     
+015A                 204     BUZZER_SI:
+015A B40705          205             CJNE A, #07H, DEFAULT_NOSOUND
+015D 7BFE            206                     MOV R3, #0FEH
+015F 7C2E            207                     MOV R4, #02EH
+0161 22              208                     RET
+                     209     
+0162                 210     DEFAULT_NOSOUND:
+0162 758000          211             MOV P0, #00H
+0165 22              212             RET
+                     213             
+0166                 214     DELAY500ms:
+0166 758DFC          215             MOV TH1, #0FCH
+0169 758B18          216             MOV TL1, #018H
+016C D28E            217             SETB TR1        
+                     218     
+016E                 219     WAIT:
+016E 308FFD          220             JNB TF1, $
+0171 C28E            221             CLR TR1
+0173 C28F            222             CLR TF1
+0175 DEEF            223             DJNZ R6, DELAY500ms
+0177 7E02            224             MOV R6, #02H
+0179 DFEB            225             DJNZ R7, DELAY500ms
+017B 22              226             RET
+                     227             END
+A51 MACRO ASSEMBLER  LAB12_3                                                              12/09/2025 20:05:55 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . .  D ADDR   00E0H   A   
+BUZZER_CHOOSE_FREQ  C ADDR   012AH   A   
+BUZZER_D0. . . . .  C ADDR   012AH   A   
+BUZZER_FA. . . . .  C ADDR   0142H   A   
+BUZZER_LA. . . . .  C ADDR   0152H   A   
+BUZZER_MI. . . . .  C ADDR   013AH   A   
+BUZZER_RE. . . . .  C ADDR   0132H   A   
+BUZZER_SI. . . . .  C ADDR   015AH   A   
+BUZZER_SO. . . . .  C ADDR   014AH   A   
+BUZZ_MODE1_INIT. .  C ADDR   0080H   A   
+BUZZ_MODE1_MAIN. .  C ADDR   0084H   A   
+BUZZ_MODE2_INIT. .  C ADDR   0099H   A   
+BUZZ_MODE2_MAIN. .  C ADDR   009DH   A   
+BUZZ_MODE3_INIT. .  C ADDR   00B2H   A   
+BUZZ_MODE3_MAIN. .  C ADDR   00B6H   A   
+CHOOSE_MODE. . . .  C ADDR   0115H   A   
+CHOOSE_MODE1 . . .  C ADDR   0115H   A   
+CHOOSE_MODE2 . . .  C ADDR   011BH   A   
+CHOOSE_MODE3 . . .  C ADDR   0121H   A   
+DEFAULT. . . . . .  C ADDR   00CBH   A   
+DEFAULT_NOSOUND. .  C ADDR   0162H   A   
+DELAY500MS . . . .  C ADDR   0166H   A   
+EXIT_ISR . . . . .  C ADDR   0112H   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INIT . . . . . . .  C ADDR   0057H   A   
+LOOP . . . . . . .  C ADDR   0079H   A   
+MODE3_TABLE. . . .  C ADDR   0050H   A   
+NO_CHOICE. . . . .  C ADDR   0127H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+PCON . . . . . . .  D ADDR   0087H   A   
+RECEIVE_CHAR . . .  C ADDR   0106H   A   
+RI . . . . . . . .  B ADDR   0098H.0 A   
+SBUF . . . . . . .  D ADDR   0099H   A   
+SCON . . . . . . .  D ADDR   0098H   A   
+SELECT_MODE. . . .  C ADDR   007DH   A   
+SELECT_MODE1 . . .  C ADDR   007DH   A   
+SELECT_MODE2 . . .  C ADDR   0096H   A   
+SELECT_MODE3 . . .  C ADDR   00AFH   A   
+SERIAL_ISR . . . .  C ADDR   00F8H   A   
+TF1. . . . . . . .  B ADDR   0088H.7 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TI . . . . . . . .  B ADDR   0098H.1 A   
+TIMER0_ISR . . . .  C ADDR   00E6H   A   
+TIMER1_MODE1 . . .  C ADDR   00CEH   A   
+TIMER1_MODE2 . . .  C ADDR   00D6H   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+TRANSMIT_CHAR. . .  C ADDR   010EH   A   
+WAIT . . . . . . .  C ADDR   016EH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

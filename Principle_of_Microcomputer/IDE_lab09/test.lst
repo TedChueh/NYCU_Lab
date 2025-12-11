@@ -1,0 +1,49 @@
+A51 MACRO ASSEMBLER  TEST                                                                 11/04/2025 18:45:50 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\test.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\..\..\..\..\Downloads\LAB09\¿N¿ý\test.asm SET(SMALL) DEBUG PRINT(.\test
+                      .lst) OBJECT(.\test.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000 747F              1     MOV A,#01111111B
+0002                   2     MAIN:
+0002 03                3     RR A
+0003 F580              4     MOV P0,A
+0005 F590              5     MOV P1,A
+0007 F5A0              6     MOV P2,A
+0009 F5C0              7     MOV 0C0H,A
+000B 110F              8     CALL DELAY
+000D 80F3              9     JMP MAIN
+000F                  10     DELAY:
+000F 78FF             11     MOV R0,#255
+0011                  12     DELAY1:
+0011 79FF             13     MOV R1,#255
+0013                  14     DELAY2:
+0013 D9FE             15     DJNZ R1,DELAY2
+0015 D8FA             16     DJNZ R0,DELAY1
+0017 22               17     RET
+                      18     END
+A51 MACRO ASSEMBLER  TEST                                                                 11/04/2025 18:45:50 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   000FH   A   
+DELAY1 . . . . . .  C ADDR   0011H   A   
+DELAY2 . . . . . .  C ADDR   0013H   A   
+MAIN . . . . . . .  C ADDR   0002H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

@@ -1,0 +1,117 @@
+A51 MACRO ASSEMBLER  LAB7_1                                                               10/21/2025 20:53:27 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab7.1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab07\lab7.1.asm SET(SMALL) DEBUG PRINT(.\lab7.1.lst) OBJECT(.\lab7.1.o
+                      bj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0150              2             AJMP INIT
+0050                   3             ORG 50H
+                       4     
+0050                   5     INIT:
+0050 758901            6         MOV TMOD, #01H 
+0053 759011            7         MOV P1, #00010001B ; Motor Output Pin
+0056 7B5A              8             MOV R3, #05AH ; Motor Target Degree(90)
+0058 7C04              9             MOV R4, #04H ; Motor 1 Cycle Step(4)
+005A 7D06             10             MOV R5, #06H ; Motor Number of Cycle to achieve 1 Degree(6)
+                      11     
+005C                  12     LOOP:
+005C 116B             13             ACALL MOTOR_CCW_DEG90
+005E 1164             14             ACALL MOTOR_CW_DEG90
+0060 1164             15             ACALL MOTOR_CW_DEG90
+0062 0162             16             AJMP $
+                      17     
+0064                  18     MOTOR_CW_DEG90:
+0064                  19     MOTOR_CW_DEG90_INIT:
+0064 7B46             20             MOV R3, #046H
+0066                  21     MOTOR_CW_DEG90_MAIN:
+0066 1172             22             ACALL MOTOR_CW_DEG1
+0068 DBFC             23             DJNZ R3, MOTOR_CW_DEG90_MAIN
+006A 22               24             RET
+                      25     
+006B                  26     MOTOR_CCW_DEG90:
+006B                  27     MOTOR_CCW_DEG90_INIT:
+006B 7B46             28             MOV R3, #046H
+006D                  29     MOTOR_CCW_DEG90_MAIN:
+006D 1184             30             ACALL MOTOR_CCW_DEG1
+006F DBFC             31             DJNZ R3, MOTOR_CCW_DEG90_MAIN
+0071 22               32             RET
+                      33     
+0072                  34     MOTOR_CW_DEG1:
+0072                  35     MOTOR_CW_DEG1_INIT:
+0072 7C04             36             MOV R4, #04H
+0074 7D01             37             MOV R5, #01H
+0076                  38     MOTOR_CW_DEG1_MAIN:
+0076 1196             39             ACALL DELAY5MS
+0078 E590             40             MOV A, P1
+007A 03               41             RR A
+007B F590             42             MOV P1, A
+007D DCF7             43             DJNZ R4, MOTOR_CW_DEG1_MAIN
+007F 7C04             44             MOV R4, #04H
+0081 DDF3             45             DJNZ R5, MOTOR_CW_DEG1_MAIN
+0083 22               46             RET
+                      47     
+0084                  48     MOTOR_CCW_DEG1:
+0084                  49     MOTOR_CCW_DEG1_INIT:
+0084 7C04             50             MOV R4, #04H
+0086 7D01             51             MOV R5, #01H
+0088                  52     MOTOR_CCW_DEG1_MAIN:
+0088 1196             53             ACALL DELAY5MS
+008A E590             54             MOV A, P1
+008C 23               55             RL A
+008D F590             56             MOV P1, A
+008F DCF7             57             DJNZ R4, MOTOR_CCW_DEG1_MAIN
+A51 MACRO ASSEMBLER  LAB7_1                                                               10/21/2025 20:53:27 PAGE     2
+
+0091 7C04             58             MOV R4, #04H
+0093 DDF3             59             DJNZ R5, MOTOR_CCW_DEG1_MAIN
+0095 22               60             RET
+                      61     
+0096                  62     DELAY5MS:
+0096 758CEC           63             MOV TH0, #0ECH    
+0099 758A78           64             MOV TL0, #078H   
+009C D28C             65             SETB TR0        
+009E 308DFD           66             JNB TF0, $
+00A1 C28C             67             CLR TR0
+00A3 C28D             68             CLR TF0
+00A5 22               69             RET
+                      70             END
+A51 MACRO ASSEMBLER  LAB7_1                                                               10/21/2025 20:53:27 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E               T Y P E  V A L U E   ATTRIBUTES
+
+DELAY5MS . . . . . .  C ADDR   0096H   A   
+INIT . . . . . . . .  C ADDR   0050H   A   
+LOOP . . . . . . . .  C ADDR   005CH   A   
+MOTOR_CCW_DEG1 . . .  C ADDR   0084H   A   
+MOTOR_CCW_DEG1_INIT.  C ADDR   0084H   A   
+MOTOR_CCW_DEG1_MAIN.  C ADDR   0088H   A   
+MOTOR_CCW_DEG90. . .  C ADDR   006BH   A   
+MOTOR_CCW_DEG90_INIT  C ADDR   006BH   A   
+MOTOR_CCW_DEG90_MAIN  C ADDR   006DH   A   
+MOTOR_CW_DEG1. . . .  C ADDR   0072H   A   
+MOTOR_CW_DEG1_INIT .  C ADDR   0072H   A   
+MOTOR_CW_DEG1_MAIN .  C ADDR   0076H   A   
+MOTOR_CW_DEG90 . . .  C ADDR   0064H   A   
+MOTOR_CW_DEG90_INIT.  C ADDR   0064H   A   
+MOTOR_CW_DEG90_MAIN.  C ADDR   0066H   A   
+P1 . . . . . . . . .  D ADDR   0090H   A   
+TF0. . . . . . . . .  B ADDR   0088H.5 A   
+TH0. . . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . . .  B ADDR   0088H.4 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

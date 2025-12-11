@@ -1,0 +1,269 @@
+A51 MACRO ASSEMBLER  LAB10_3                                                              11/25/2025 20:21:13 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab10.3.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab10\lab10.3.asm SET(SMALL) DEBUG PRINT(.\lab10.3.lst) OBJECT(.\lab10.
+                      3.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0192              2             AJMP INIT
+                       3     
+000B                   4             ORG 0BH
+000B 2126              5             AJMP RESET_TIMER0
+                       6     
+001B                   7             ORG 01BH
+001B 2151              8             AJMP RESET_TIMER1
+                       9             
+0050                  10             ORG 50H
+                      11     
+0050                  12     RHYTHM_DATA:
+0050 D8F0             13         DB  0D8H,0F0H
+0052 EC78             14         DB  0ECH,078H
+0054 D8F0             15         DB  0D8H,0F0H
+0056 EC78             16         DB  0ECH,078H
+0058 D8F0             17         DB  0D8H,0F0H
+005A D8F0             18         DB  0D8H,0F0H
+                      19     
+005C D8F0             20         DB  0D8H,0F0H
+005E EC78             21         DB  0ECH,078H
+0060 D8F0             22         DB  0D8H,0F0H
+0062 EC78             23         DB  0ECH,078H
+0064 D8F0             24         DB  0D8H,0F0H
+0066 D8F0             25         DB  0D8H,0F0H
+                      26     
+0068 D8F0             27         DB  0D8H,0F0H
+006A D8F0             28         DB  0D8H,0F0H
+006C D8F0             29         DB  0D8H,0F0H
+006E D8F0             30         DB  0D8H,0F0H
+0070 D8F0             31         DB  0D8H,0F0H
+0072 EC78             32         DB  0ECH,078H
+0074 D8F0             33         DB  0D8H,0F0H
+0076 EC78             34         DB  0ECH,078H
+0078 D8F0             35         DB  0D8H,0F0H
+007A D8F0             36         DB  0D8H,0F0H
+                      37     
+                      38     
+007C                  39     MELODY_DATA:
+007C 070C040C         40         DB 7,0CH,4,0CH,4,4
+0080 0404                    
+0082 050C020C         41             DB 5,0CH,2,0CH,2,2
+0086 0202                    
+0088 00020405         42             DB 0,2,4,5,7,0CH,7,0CH,7,7
+008C 070C070C                
+0090 0707                    
+                      43     
+0092                  44     INIT:
+0092 758911           45             MOV TMOD, #011H
+0095 75A88A           46             MOV IE, #10001010B   ; EA=1, ET1=1, ET0=1
+                      47             
+0098 758000           48             MOV P0, #00H
+009B 780C             49             MOV R0, #0CH ; 12 Frequenze For The Buzzer Buzz
+009D 7900             50             MOV R1, #00H ; Loop Count For The Buzzer Buzz In 1 Second For The Specific Frequenc
+                             e
+009F 7A00             51             MOV R2, #00H ; Temp For TH1
+00A1 7B00             52             MOV R3, #00H ; Temp For TL1
+A51 MACRO ASSEMBLER  LAB10_3                                                              11/25/2025 20:21:13 PAGE     2
+
+                      53     
+00A3 7C00             54             MOV R4, #00H  ;Index Of Melody Time Delay
+00A5 7D00             55             MOV R5, #00H  ;Index of Melody Data
+                      56     
+00A7 758CFF           57             MOV  TH0, #0FFH
+00AA 758AFF           58             MOV  TL0, #0FFH 
+00AD 758DFF           59             MOV  TH1, #0FFH
+00B0 758BFF           60             MOV  TL1, #0FFH
+00B3 D28C             61             SETB TR0
+00B5 D28E             62             SETB TR1
+                      63     
+00B7                  64     LOOP:
+00B7 80FE             65             JMP $
+                      66     
+00B9                  67     BUZZER_CHOOSE_FREQ:
+00B9                  68     BUZZER_D0:
+00B9 B80005           69             CJNE R0, #00H, BUZZER_D0_
+00BC 7AFC             70                     MOV R2, #0FCH
+00BE 7B8F             71                     MOV R3, #08FH
+00C0 22               72                     RET
+                      73     
+00C1                  74     BUZZER_D0_:
+00C1 B80105           75             CJNE R0, #01H, BUZZER_RE
+00C4 7AFC             76                     MOV R2, #0FCH
+00C6 7BC0             77                     MOV R3, #0C0H
+00C8 22               78                     RET
+                      79     
+00C9                  80     BUZZER_RE:
+00C9 B80205           81             CJNE R0, #02H, BUZZER_RE_
+00CC 7AFC             82                     MOV R2, #0FCH
+00CE 7BEF             83                     MOV R3, #0EFH
+00D0 22               84                     RET
+                      85     
+00D1                  86     BUZZER_RE_:
+00D1 B80305           87             CJNE R0, #03H, BUZZER_MI
+00D4 7AFD             88                     MOV R2, #0FDH
+00D6 7B1B             89                     MOV R3, #01BH
+00D8 22               90                     RET
+                      91     
+00D9                  92     BUZZER_MI:
+00D9 B80405           93             CJNE R0, #04H, BUZZER_FA
+00DC 7AFD             94                     MOV R2, #0FDH
+00DE 7B45             95                     MOV R3, #045H
+00E0 22               96                     RET
+                      97     
+00E1                  98     BUZZER_FA:
+00E1 B80505           99             CJNE R0, #05H, BUZZER_FA_
+00E4 7AFD            100                     MOV R2, #0FDH
+00E6 7B6C            101                     MOV R3, #06CH
+00E8 22              102                     RET
+                     103     
+00E9                 104     BUZZER_FA_:
+00E9 B80605          105             CJNE R0, #06H, BUZZER_SO
+00EC 7AFD            106                     MOV R2, #0FDH
+00EE 7B91            107                     MOV R3, #091H
+00F0 22              108                     RET
+                     109     
+00F1                 110     BUZZER_SO:
+00F1 B80705          111             CJNE R0, #07H, BUZZER_SO_
+00F4 7AFD            112                     MOV R2, #0FDH
+00F6 7BB4            113                     MOV R3, #0B4H
+00F8 22              114                     RET
+                     115     
+00F9                 116     BUZZER_SO_:
+00F9 B80805          117             CJNE R0, #08H, BUZZER_LA
+00FC 7AFD            118                     MOV R2, #0FDH
+A51 MACRO ASSEMBLER  LAB10_3                                                              11/25/2025 20:21:13 PAGE     3
+
+00FE 7BD5            119                     MOV R3, #0D5H
+0100 22              120                     RET
+                     121     
+0101                 122     BUZZER_LA:
+0101 B80905          123             CJNE R0, #09H, BUZZER_LA_
+0104 7AFD            124                     MOV R2, #0FDH
+0106 7BF4            125                     MOV R3, #0F4H
+0108 22              126                     RET
+                     127     
+0109                 128     BUZZER_LA_:
+0109 B80A05          129             CJNE R0, #0AH, BUZZER_SI
+010C 7AFE            130                     MOV R2, #0FEH
+010E 7B12            131                     MOV R3, #012H
+0110 22              132                     RET
+                     133     
+0111                 134     BUZZER_SI:
+0111 B80B05          135             CJNE R0, #0BH, BUZZER_NON
+0114 7AFE            136                     MOV R2, #0FEH
+0116 7B2E            137                     MOV R3, #02EH
+0118 22              138                     RET
+                     139     
+0119                 140     BUZZER_NON:
+0119 B80C05          141             CJNE R0, #0CH, DEFAULT
+011C 7A00            142                     MOV R2, #00H
+011E 7B00            143                     MOV R3, #00H
+0120 22              144                     RET
+                     145     
+0121                 146     DEFAULT:
+0121 7A00            147             MOV R2, #00H
+0123 7B00            148             MOV R3, #00H
+0125 22              149             RET
+                     150     
+0126                 151     RESET_TIMER0:
+0126 C0E0            152             PUSH  ACC
+0128 C28C            153             CLR   TR0
+                     154     
+012A 900050          155             MOV   DPTR, #RHYTHM_DATA
+012D EC              156             MOV   A, R4
+012E 93              157             MOVC  A, @A+DPTR
+012F F58C            158             MOV   TH0, A
+                     159             
+0131 EC              160             MOV   A, R4
+0132 04              161             INC   A
+0133 93              162             MOVC  A, @A+DPTR
+0134 F58A            163             MOV   TL0, A
+                     164     
+0136 B91412          165             CJNE  R1, #014H ,CONTINUE
+0139 7900            166             MOV   R1, #00H
+013B 0C              167             INC   R4
+013C 0C              168             INC   R4
+013D 90007C          169             MOV   DPTR, #MELODY_DATA
+0140 ED              170             MOV   A, R5
+0141 93              171             MOVC  A, @A+DPTR
+0142 F8              172             MOV   R0, A
+0143 0D              173             INC   R5
+0144 11B9            174             ACALL BUZZER_CHOOSE_FREQ
+0146 D28C            175             SETB  TR0
+0148 D0E0            176             POP   ACC
+014A 32              177             RETI
+                     178     
+014B                 179     CONTINUE:
+014B 09              180             INC   R1
+014C D28C            181             SETB  TR0
+014E D0E0            182             POP   ACC
+0150 32              183             RETI
+                     184     
+A51 MACRO ASSEMBLER  LAB10_3                                                              11/25/2025 20:21:13 PAGE     4
+
+0151                 185     RESET_TIMER1:
+0151 C0E0            186             PUSH  ACC
+0153 C28E            187             CLR   TR1
+0155 8A8D            188             MOV   TH1, R2
+0157 8B8B            189             MOV   TL1, R3
+0159 BA0006          190             CJNE  R2, #00H, PULSE
+015C BB0003          191             CJNE  R3, #00H, PULSE
+015F 758000          192             MOV   P0,  #00H
+                     193     
+0162                 194     PULSE:
+0162 E580            195             MOV   A, P0
+0164 F4              196             CPL   A
+0165 F580            197             MOV   P0, A
+0167 D28E            198             SETB  TR1
+0169 D0E0            199             POP   ACC
+016B 32              200             RETI
+                     201             END
+A51 MACRO ASSEMBLER  LAB10_3                                                              11/25/2025 20:21:13 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . .  D ADDR   00E0H   A   
+BUZZER_CHOOSE_FREQ  C ADDR   00B9H   A   
+BUZZER_D0. . . . .  C ADDR   00B9H   A   
+BUZZER_D0_ . . . .  C ADDR   00C1H   A   
+BUZZER_FA. . . . .  C ADDR   00E1H   A   
+BUZZER_FA_ . . . .  C ADDR   00E9H   A   
+BUZZER_LA. . . . .  C ADDR   0101H   A   
+BUZZER_LA_ . . . .  C ADDR   0109H   A   
+BUZZER_MI. . . . .  C ADDR   00D9H   A   
+BUZZER_NON . . . .  C ADDR   0119H   A   
+BUZZER_RE. . . . .  C ADDR   00C9H   A   
+BUZZER_RE_ . . . .  C ADDR   00D1H   A   
+BUZZER_SI. . . . .  C ADDR   0111H   A   
+BUZZER_SO. . . . .  C ADDR   00F1H   A   
+BUZZER_SO_ . . . .  C ADDR   00F9H   A   
+CONTINUE . . . . .  C ADDR   014BH   A   
+DEFAULT. . . . . .  C ADDR   0121H   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INIT . . . . . . .  C ADDR   0092H   A   
+LOOP . . . . . . .  C ADDR   00B7H   A   
+MELODY_DATA. . . .  C ADDR   007CH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+PULSE. . . . . . .  C ADDR   0162H   A   
+RESET_TIMER0 . . .  C ADDR   0126H   A   
+RESET_TIMER1 . . .  C ADDR   0151H   A   
+RHYTHM_DATA. . . .  C ADDR   0050H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

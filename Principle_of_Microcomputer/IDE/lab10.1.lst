@@ -1,0 +1,203 @@
+A51 MACRO ASSEMBLER  LAB10_1                                                              11/25/2025 13:03:58 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab10.1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab10\lab10.1.asm SET(SMALL) DEBUG PRINT(.\lab10.1.lst) OBJECT(.\lab10.
+                      1.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0150              2             AJMP INIT
+0050                   3             ORG 50H
+                       4     
+0050                   5     INIT:
+0050 758901            6             MOV TMOD, #01H
+0053 758000            7             MOV P0, #00H
+0056 7800              8             MOV R0, #00H ; 12 Frequenze For The Buzzer Buzz
+0058 7900              9             MOV R1, #00H ; Loop Count For The Buzzer Buzz In 1 Second For The Specific Frequenc
+                             e
+005A 7A00             10             MOV R2, #00H ; Temp For TH0
+005C 7B00             11             MOV R3, #00H ; Temp For TL0
+005E 7C00             12             MOV R4, #00H ; Counter For Loop To Achieve 1 Second Delay
+0060 7D00             13             MOV R5, #00H ; Temp For Any Usage
+                      14     
+0062                  15     LOOP:
+0062 1168             16             ACALL BUZZER_CHOOSE_FREQ
+0064 11F6             17             ACALL BUZZER_BUZZ
+0066 80FA             18             JMP LOOP
+                      19     
+0068                  20     BUZZER_CHOOSE_FREQ:
+0068                  21     BUZZER_D0:
+0068 B80C08           22             CJNE R0, #0CH, BUZZER_D0_
+006B 7982             23                     MOV R1, #082H
+006D 7AFC             24                     MOV R2, #0FCH
+006F 7B8F             25                     MOV R3, #08FH
+0071 18               26                     DEC R0
+0072 22               27                     RET
+                      28     
+0073                  29     BUZZER_D0_:
+0073 B80B08           30             CJNE R0, #0BH, BUZZER_RE
+0076 798A             31                     MOV R1, #08AH
+0078 7AFC             32                     MOV R2, #0FCH
+007A 7BC0             33                     MOV R3, #0C0H
+007C 18               34                     DEC R0
+007D 22               35                     RET
+                      36     
+007E                  37     BUZZER_RE:
+007E B80A08           38             CJNE R0, #0AH, BUZZER_RE_
+0081 7992             39                     MOV R1, #092H
+0083 7AFC             40                     MOV R2, #0FCH
+0085 7BEF             41                     MOV R3, #0EFH
+0087 18               42                     DEC R0
+0088 22               43                     RET
+                      44     
+0089                  45     BUZZER_RE_:
+0089 B80908           46             CJNE R0, #09H, BUZZER_MI
+008C 799B             47                     MOV R1, #09BH
+008E 7AFD             48                     MOV R2, #0FDH
+0090 7B1B             49                     MOV R3, #01BH
+0092 18               50                     DEC R0
+0093 22               51                     RET
+                      52     
+0094                  53     BUZZER_MI:
+0094 B80808           54             CJNE R0, #08H, BUZZER_FA
+0097 79A4             55                     MOV R1, #0A4H
+0099 7AFD             56                     MOV R2, #0FDH
+A51 MACRO ASSEMBLER  LAB10_1                                                              11/25/2025 13:03:58 PAGE     2
+
+009B 7B45             57                     MOV R3, #045H
+009D 18               58                     DEC R0
+009E 22               59                     RET
+                      60     
+009F                  61     BUZZER_FA:
+009F B80708           62             CJNE R0, #07H, BUZZER_FA_
+00A2 79AE             63                     MOV R1, #0AEH
+00A4 7AFD             64                     MOV R2, #0FDH
+00A6 7B6C             65                     MOV R3, #06CH
+00A8 18               66                     DEC R0
+00A9 22               67                     RET
+                      68     
+00AA                  69     BUZZER_FA_:
+00AA B80608           70             CJNE R0, #06H, BUZZER_SO
+00AD 79B9             71                     MOV R1, #0B9H
+00AF 7AFD             72                     MOV R2, #0FDH
+00B1 7B91             73                     MOV R3, #091H
+00B3 18               74                     DEC R0
+00B4 22               75                     RET
+                      76     
+00B5                  77     BUZZER_SO:
+00B5 B80508           78             CJNE R0, #05H, BUZZER_SO_
+00B8 79C4             79                     MOV R1, #0C4H
+00BA 7AFD             80                     MOV R2, #0FDH
+00BC 7BB4             81                     MOV R3, #0B4H
+00BE 18               82                     DEC R0
+00BF 22               83                     RET
+                      84     
+00C0                  85     BUZZER_SO_:
+00C0 B80408           86             CJNE R0, #04H, BUZZER_LA
+00C3 79CF             87                     MOV R1, #0CFH
+00C5 7AFD             88                     MOV R2, #0FDH
+00C7 7BD5             89                     MOV R3, #0D5H
+00C9 18               90                     DEC R0
+00CA 22               91                     RET
+                      92     
+00CB                  93     BUZZER_LA:
+00CB B80308           94             CJNE R0, #03H, BUZZER_LA_
+00CE 79DC             95                     MOV R1, #0DCH
+00D0 7AFD             96                     MOV R2, #0FDH
+00D2 7BF4             97                     MOV R3, #0F4H
+00D4 18               98                     DEC R0
+00D5 22               99                     RET
+                     100     
+00D6                 101     BUZZER_LA_:
+00D6 B80208          102             CJNE R0, #02H, BUZZER_SI
+00D9 79E9            103                     MOV R1, #0E9H
+00DB 7AFE            104                     MOV R2, #0FEH
+00DD 7B12            105                     MOV R3, #012H
+00DF 18              106                     DEC R0
+00E0 22              107                     RET
+                     108     
+00E1                 109     BUZZER_SI:
+00E1 B80108          110             CJNE R0, #01H, DEFAULT
+00E4 79F7            111                     MOV R1, #0F7H
+00E6 7AFE            112                     MOV R2, #0FEH
+00E8 7B2E            113                     MOV R3, #02EH
+00EA 18              114                     DEC R0
+00EB 22              115                     RET
+                     116     
+00EC                 117     DEFAULT:
+00EC 780C            118             MOV R0, #0CH
+00EE 7900            119             MOV R1, #00H
+00F0 7A00            120             MOV R2, #00H
+00F2 7B00            121             MOV R3, #00H
+00F4 0168            122             JMP BUZZER_CHOOSE_FREQ
+A51 MACRO ASSEMBLER  LAB10_1                                                              11/25/2025 13:03:58 PAGE     3
+
+                     123     
+00F6                 124     BUZZER_BUZZ:
+00F6                 125     BUZZER_BUZZ_INIT:
+00F6 7C04            126             MOV R4, #04H
+00F8 E9              127             MOV A, R1
+00F9 FD              128             MOV R5, A
+00FA                 129     BUZZER_BUZZ_MAIN:
+00FA E580            130             MOV   A, P0
+00FC F4              131             CPL   A
+00FD F580            132             MOV   P0, A
+00FF 8A8C            133             MOV   TH0, R2
+0101 8B8A            134             MOV   TL0, R3
+0103 310C            135             ACALL DELAY
+0105 D9F3            136             DJNZ R1, BUZZER_BUZZ_MAIN
+0107 ED              137             MOV  A, R5
+0108 F9              138             MOV  R1, A
+0109 DCEF            139             DJNZ R4, BUZZER_BUZZ_MAIN
+010B 22              140             RET
+                     141     
+010C                 142     DELAY:
+010C D28C            143             SETB TR0        
+010E 308DFD          144             JNB TF0, $
+0111 C28C            145             CLR TR0
+0113 C28D            146             CLR TF0
+0115 22              147             RET
+                     148             END
+A51 MACRO ASSEMBLER  LAB10_1                                                              11/25/2025 13:03:58 PAGE     4
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+BUZZER_BUZZ. . . .  C ADDR   00F6H   A   
+BUZZER_BUZZ_INIT .  C ADDR   00F6H   A   
+BUZZER_BUZZ_MAIN .  C ADDR   00FAH   A   
+BUZZER_CHOOSE_FREQ  C ADDR   0068H   A   
+BUZZER_D0. . . . .  C ADDR   0068H   A   
+BUZZER_D0_ . . . .  C ADDR   0073H   A   
+BUZZER_FA. . . . .  C ADDR   009FH   A   
+BUZZER_FA_ . . . .  C ADDR   00AAH   A   
+BUZZER_LA. . . . .  C ADDR   00CBH   A   
+BUZZER_LA_ . . . .  C ADDR   00D6H   A   
+BUZZER_MI. . . . .  C ADDR   0094H   A   
+BUZZER_RE. . . . .  C ADDR   007EH   A   
+BUZZER_RE_ . . . .  C ADDR   0089H   A   
+BUZZER_SI. . . . .  C ADDR   00E1H   A   
+BUZZER_SO. . . . .  C ADDR   00B5H   A   
+BUZZER_SO_ . . . .  C ADDR   00C0H   A   
+DEFAULT. . . . . .  C ADDR   00ECH   A   
+DELAY. . . . . . .  C ADDR   010CH   A   
+INIT . . . . . . .  C ADDR   0050H   A   
+LOOP . . . . . . .  C ADDR   0062H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+TF0. . . . . . . .  B ADDR   0088H.5 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

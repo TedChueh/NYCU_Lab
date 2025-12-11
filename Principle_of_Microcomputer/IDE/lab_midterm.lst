@@ -1,0 +1,760 @@
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab_midterm.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab_midterm\lab_midterm.asm SET(SMALL) DEBUG PRINT(.\lab_midterm.lst) O
+                      BJECT(.\lab_midterm.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+  00B0                 1     LCD_EN EQU  P3.0
+  00B1                 2     LCD_RW EQU  P3.1
+  00B2                 3     LCD_RS EQU  P3.2
+  0080                 4     LCD_DATA EQU P0
+  0090                 5     KEYPAD_IO EQU P1        
+                       6             
+0000                   7             ORG 00H
+0000 01A6              8             AJMP INIT
+0050                   9             ORG 50H
+                      10     
+0050                  11     CUSTOM_CHAR1:
+0050 06               12             DB 00000110B
+0051 0F               13             DB 00001111B
+0052 1C               14             DB 00011100B
+0053 18               15             DB 00011000B
+0054 1C               16             DB 00011100B
+0055 0F               17             DB 00001111B
+0056 06               18             DB 00000110B
+0057 00               19             DB 00000000B
+                      20     
+0058                  21     CUSTOM_CHAR2:
+0058 04               22             DB 00000100B
+0059 0E               23             DB 00001110B
+005A 1F               24             DB 00011111B
+005B 1F               25             DB 00011111B
+005C 1F               26             DB 00011111B
+005D 0E               27             DB 00001110B
+005E 04               28             DB 00000100B
+005F 00               29             DB 00000000B
+                      30     
+0060                  31     CUSTOM_CHAR3:
+0060 0E               32             DB 00001110B
+0061 1C               33             DB 00011100B
+0062 18               34             DB 00011000B
+0063 1A               35             DB 00011010B
+0064 18               36             DB 00011000B
+0065 1C               37             DB 00011100B
+0066 0E               38             DB 00001110B
+0067 00               39             DB 00000000B
+                      40     
+0068                  41     CUSTOM_CHAR4:
+0068 00               42             DB 00000000B
+0069 00               43             DB 00000000B
+006A 00               44             DB 00000000B
+006B 02               45             DB 00000010B
+006C 00               46             DB 00000000B
+006D 00               47             DB 00000000B
+006E 00               48             DB 00000000B
+006F 00               49             DB 00000000B
+                      50     
+0070                  51     CUSTOM_CHAR5:
+0070 FF               52             DB 11111111B
+0071 FF               53             DB 11111111B
+0072 FF               54             DB 11111111B
+0073 FF               55             DB 11111111B
+0074 FF               56             DB 11111111B
+0075 FF               57             DB 11111111B
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     2
+
+0076 FF               58             DB 11111111B
+0077 FF               59             DB 11111111B
+                      60     
+0078                  61     PAGE_LOBBY_STRING:
+0078 53656C65         62             DB "Select a Mode!"
+007C 63742061                
+0080 204D6F64                
+0084 6521                    
+                      63     
+0086                  64     ANIMATION_DATA:
+0086 2E               65             DB '.'
+0087 00               66             DB 00H
+0088 01               67             DB 01H
+0089 02               68             DB 02H
+008A 03               69             DB 03H
+                      70     
+008B                  71     LCM_NUM:
+008B 30313233         72             DB "0123456789"
+008F 34353637                
+0093 3839                    
+                      73     
+0095                  74     KEYPAD_NUM:
+0095 00               75             DB 00H
+0096 04               76             DB 04H  
+0097 08               77             DB 08H 
+0098 0C               78             DB 0CH  
+                      79     
+0099 01               80             DB 01H  
+009A 05               81             DB 05H  
+009B 09               82             DB 09H   
+009C 0D               83             DB 0DH
+                      84     
+009D 02               85             DB 02H  
+009E 06               86             DB 06H  
+009F 0A               87             DB 0AH
+00A0 0E               88             DB 0EH
+                      89     
+00A1 03               90             DB 03H   
+00A2 07               91             DB 07H  
+00A3 0B               92             DB 0BH  
+00A4 0F               93             DB 0FH
+                      94     
+00A5 10               95             DB 010H ; No key pressed
+                      96     
+00A6                  97     INIT:
+00A6 758901           98         MOV TMOD, #01H 
+                      99     
+00A9 7810            100         MOV R0, #010H ;Col Detection
+00AB 7900            101             MOV R1, #00H  ;Row Detection
+00AD 7A00            102             MOV R2, #00H  ;Temp For Row Detection
+00AF 7590FF          103         MOV KEYPAD_IO, #0FFH ;Keypad I/O
+                     104     
+00B2 7B00            105             MOV R3, #00H ;String Character Counter
+00B4 7C0A            106             MOV R4, #0AH ;Number of Characters for Mode 1
+                     107             
+00B6 C2B1            108             CLR LCD_RW
+00B8 51CF            109             ACALL DELAY10MS
+                     110     
+00BA 743B            111             MOV A,#00111011B
+00BC 5154            112             ACALL WRIR
+                     113     
+00BE 740E            114             MOV A,#00001110B
+00C0 5154            115             ACALL WRIR
+                     116     
+00C2 7401            117             MOV A,#00000001B
+00C4 5154            118             ACALL WRIR
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     3
+
+                     119     
+00C6 7480            120             MOV A,#10000000B
+00C8 5154            121             ACALL WRIR
+                     122     
+00CA 516E            123             ACALL WRITE_CUSTOM_CHAR1
+00CC 5180            124             ACALL WRITE_CUSTOM_CHAR2
+00CE 5192            125             ACALL WRITE_CUSTOM_CHAR3
+00D0 51A4            126             ACALL WRITE_CUSTOM_CHAR4
+00D2 51B6            127             ACALL WRITE_CUSTOM_CHAR5
+                     128     
+00D4                 129     LOOP:
+00D4 11D8            130             ACALL MAIN
+00D6 80FC            131             JMP LOOP
+                     132     
+00D8                 133     MAIN:
+                     134     ;PAGE_LOBBY---------------------
+00D8                 135     PAGE_LOBBY:
+00D8 514F            136             ACALL LCM_RESET
+00DA 900078          137             MOV DPTR, #PAGE_LOBBY_STRING
+00DD 7B0E            138             MOV R3, #0EH
+                     139     
+00DF                 140     PAGE_LOBBY_MAIN:
+00DF E4              141             CLR A
+00E0 93              142             MOVC A, @A+DPTR
+00E1 5161            143             ACALL WRDR
+00E3 A3              144             INC DPTR
+00E4 DBF9            145             DJNZ R3, PAGE_LOBBY_MAIN
+                     146     
+00E6                 147     DETECT_MODE:
+00E6 51DF            148             ACALL KEYPAD_DETECT
+00E8 E8              149             MOV A, R0
+00E9 29              150             ADD A, R1
+00EA B41002          151             CJNE A, #010H, SELECT_PAGE
+00ED 80F7            152             JMP DETECT_MODE
+                     153     
+00EF                 154     SELECT_PAGE:
+00EF 900095          155             MOV DPTR, #KEYPAD_NUM
+00F2 93              156             MOVC A, @A+DPTR
+                     157     
+00F3                 158     SELECT_PAGE1:
+00F3 B40003          159             CJNE A, #00H, SELECT_PAGE2
+00F6 3105            160             ACALL PAGE_1
+00F8 22              161             RET
+                     162     
+00F9                 163     SELECT_PAGE2:
+00F9 B40103          164             CJNE A, #01H, SELECT_PAGE3
+00FC 31DB            165             ACALL PAGE_2
+00FE 22              166             RET
+                     167     
+00FF                 168     SELECT_PAGE3:
+00FF B402E4          169             CJNE A, #02H, DETECT_MODE
+0102 5125            170             ACALL PAGE_3
+0104 22              171             RET
+                     172     
+                     173     ;MODE---------------------------
+0105                 174     PAGE_1:
+0105 514F            175             ACALL LCM_RESET
+0107 74C0            176             MOV A, #0C0H
+0109 5154            177             ACALL WRIR
+010B 7C0A            178             MOV R4, #0AH
+                     179     
+010D                 180     PAGE_1_MAIN:
+010D 51DF            181             ACALL KEYPAD_DETECT
+010F E8              182             MOV A, R0
+0110 29              183             ADD A, R1
+0111 900095          184             MOV DPTR, #KEYPAD_NUM
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     4
+
+0114 93              185             MOVC A, @A+DPTR
+0115 B40F01          186             CJNE A, #0FH, SELECT_NUM
+0118 22              187             RET
+                     188     
+0119                 189     SELECT_NUM:
+0119 BC0002          190             CJNE R4, #00H, SELECT_NUM0
+011C 21BE            191             JMP SHIFT_NUM
+                     192     
+011E                 193     SELECT_NUM0:
+011E B4070D          194             CJNE A, #07H, SELECT_NUM1
+0121 90008B          195             MOV DPTR, #LCM_NUM
+0124 7400            196             MOV  A, #00H
+0126 93              197             MOVC A, @A+DPTR
+0127 5161            198             ACALL WRDR
+0129 1C              199             DEC R4
+012A 51C8            200             ACALL DELAY200MS
+012C 80DF            201             JMP PAGE_1_MAIN
+                     202     
+012E                 203     SELECT_NUM1:
+012E B4040D          204             CJNE A, #04H, SELECT_NUM2
+0131 90008B          205             MOV DPTR, #LCM_NUM
+0134 7401            206             MOV  A, #01H
+0136 93              207             MOVC A, @A+DPTR
+0137 5161            208             ACALL WRDR
+0139 1C              209             DEC R4
+013A 51C8            210             ACALL DELAY200MS
+013C 80CF            211             JMP PAGE_1_MAIN
+                     212     
+013E                 213     SELECT_NUM2:
+013E B4050D          214             CJNE A, #05H, SELECT_NUM3
+0141 90008B          215             MOV DPTR, #LCM_NUM
+0144 7402            216             MOV  A, #02H
+0146 93              217             MOVC A, @A+DPTR
+0147 5161            218             ACALL WRDR
+0149 1C              219             DEC R4
+014A 51C8            220             ACALL DELAY200MS
+014C 80BF            221             JMP PAGE_1_MAIN
+                     222     
+014E                 223     SELECT_NUM3:
+014E B4060D          224             CJNE A, #06H, SELECT_NUM4
+0151 90008B          225             MOV DPTR, #LCM_NUM
+0154 7403            226             MOV  A, #03H
+0156 93              227             MOVC A, @A+DPTR
+0157 5161            228             ACALL WRDR
+0159 1C              229             DEC R4
+015A 51C8            230             ACALL DELAY200MS
+015C 80AF            231             JMP PAGE_1_MAIN
+                     232     
+015E                 233     SELECT_NUM4:
+015E B4080D          234             CJNE A, #08H, SELECT_NUM5
+0161 90008B          235             MOV DPTR, #LCM_NUM
+0164 7404            236             MOV  A, #04H
+0166 93              237             MOVC A, @A+DPTR
+0167 5161            238             ACALL WRDR
+0169 1C              239             DEC R4
+016A 51C8            240             ACALL DELAY200MS
+016C 809F            241             JMP PAGE_1_MAIN
+                     242     
+016E                 243     SELECT_NUM5:
+016E B4090D          244             CJNE A, #09H, SELECT_NUM6
+0171 90008B          245             MOV DPTR, #LCM_NUM
+0174 7405            246             MOV  A, #05H
+0176 93              247             MOVC A, @A+DPTR
+0177 5161            248             ACALL WRDR
+0179 1C              249             DEC R4
+017A 51C8            250             ACALL DELAY200MS
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     5
+
+017C 808F            251             JMP PAGE_1_MAIN
+                     252     
+017E                 253     SELECT_NUM6:
+017E B40A0D          254             CJNE A, #0AH, SELECT_NUM7
+0181 90008B          255             MOV DPTR, #LCM_NUM
+0184 7406            256             MOV  A, #06H
+0186 93              257             MOVC A, @A+DPTR
+0187 5161            258             ACALL WRDR
+0189 1C              259             DEC R4
+018A 51C8            260             ACALL DELAY200MS
+018C 210D            261             JMP PAGE_1_MAIN
+                     262     
+018E                 263     SELECT_NUM7:
+018E B40C0D          264             CJNE A, #0CH, SELECT_NUM8
+0191 90008B          265             MOV DPTR, #LCM_NUM
+0194 7407            266             MOV  A, #07H
+0196 93              267             MOVC A, @A+DPTR
+0197 5161            268             ACALL WRDR
+0199 1C              269             DEC R4
+019A 51C8            270             ACALL DELAY200MS
+019C 210D            271             JMP PAGE_1_MAIN
+                     272     
+019E                 273     SELECT_NUM8:
+019E B40D0D          274             CJNE A, #0DH, SELECT_NUM9
+01A1 90008B          275             MOV DPTR, #LCM_NUM
+01A4 7408            276             MOV  A, #08H
+01A6 93              277             MOVC A, @A+DPTR
+01A7 5161            278             ACALL WRDR
+01A9 1C              279             DEC R4
+01AA 51C8            280             ACALL DELAY200MS
+01AC 210D            281             JMP PAGE_1_MAIN
+                     282     
+01AE                 283     SELECT_NUM9:
+01AE B40E0D          284             CJNE A, #0EH, SHIFT_NUM
+01B1 90008B          285             MOV DPTR, #LCM_NUM
+01B4 7409            286             MOV  A, #09H
+01B6 93              287             MOVC A, @A+DPTR
+01B7 5161            288             ACALL WRDR
+01B9 1C              289             DEC R4
+01BA 51C8            290             ACALL DELAY200MS
+01BC 210D            291             JMP PAGE_1_MAIN
+                     292     
+01BE                 293     SHIFT_NUM:
+01BE B40B02          294             CJNE A, #0BH, SHIFT_JUMP
+01C1 8002            295             JMP SHIFT_NUM1
+                     296     
+01C3                 297     SHIFT_JUMP:
+01C3 210D            298             AJMP PAGE_1_MAIN
+                     299     
+01C5                 300     SHIFT_NUM1:
+01C5 51DF            301             ACALL KEYPAD_DETECT
+01C7 E8              302             MOV A, R0
+01C8 29              303             ADD A, R1
+01C9 900095          304             MOV DPTR, #KEYPAD_NUM
+01CC 93              305             MOVC A, @A+DPTR
+01CD B40F01          306             CJNE A, #0FH, SHIFT_NUM2
+01D0 22              307             RET     
+                     308     
+01D1                 309     SHIFT_NUM2:
+01D1 741C            310             MOV A, #00011100B
+01D3 5154            311             ACALL WRIR
+01D5 51C8            312             ACALL DELAY200MS
+01D7 51C8            313             ACALL DELAY200MS
+01D9 80EA            314             JMP SHIFT_NUM1
+                     315     
+01DB                 316     PAGE_2:
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     6
+
+01DB 7E80            317             MOV R6, #080H
+                     318     
+01DD                 319     PAGE_2_MAIN:
+01DD 51DF            320             ACALL KEYPAD_DETECT
+01DF E8              321             MOV A, R0
+01E0 29              322             ADD A, R1
+01E1 900095          323             MOV DPTR, #KEYPAD_NUM
+01E4 93              324             MOVC A, @A+DPTR
+01E5 B40F01          325             CJNE A, #0FH, ANIMATION
+01E8 22              326             RET
+                     327     
+01E9                 328     ANIMATION:
+01E9                 329     SHIFT_ANIMATION_LINE:
+01E9 BE8F04          330             CJNE R6, #08FH, CHECK_ANIMATION_END
+01EC 7EC0            331             MOV R6, #0C0H
+01EE 8000            332             JMP CHECK_ANIMATION_END
+                     333     
+01F0                 334     CHECK_ANIMATION_END:
+01F0 BECF02          335             CJNE R6, #0CFH, RUN_ANIMATION
+01F3 7E80            336             MOV R6, #080H
+                     337     
+01F5                 338     RUN_ANIMATION:
+01F5 7D03            339             MOV R5, #03H
+                     340     
+01F7                 341     RUN_ANIMATION_MAIN:
+01F7 514F            342             ACALL LCM_RESET
+01F9 EE              343             MOV A, R6
+01FA 5154            344             ACALL WRIR
+01FC 900086          345             MOV DPTR, #ANIMATION_DATA
+01FF ED              346             MOV A, R5
+0200 93              347             MOVC A, @A+DPTR
+0201 5161            348             ACALL WRDR
+0203 510C            349             ACALL DRAW_DOT
+0205 DDF0            350             DJNZ R5, RUN_ANIMATION_MAIN
+0207 0E              351             INC R6
+0208 51C8            352             ACALL DELAY200MS
+020A 80D1            353             JMP PAGE_2_MAIN
+                     354     
+020C                 355     DRAW_DOT:
+020C EE              356             MOV A, R6
+020D FF              357             MOV R7, A
+020E 0F              358             INC R7
+                     359     
+020F                 360     CHANGE_DOT_LINE:
+020F BF8F04          361             CJNE R7, #08FH, DRAW_DOT_END
+0212 7FC0            362             MOV R7, #0C0H
+0214 8004            363             JMP DRAW_DOT_MAIN
+                     364     
+0216                 365     DRAW_DOT_END:
+0216 BFCF01          366             CJNE R7, #0CFH, DRAW_DOT_MAIN
+0219 22              367             RET
+                     368     
+021A                 369     DRAW_DOT_MAIN:
+021A EF              370             MOV A, R7
+021B 5154            371             ACALL WRIR
+021D 7404            372             MOV A, #04H
+021F 93              373             MOVC A, @A+DPTR
+0220 5161            374             ACALL WRDR
+0222 0F              375             INC R7
+0223 80EA            376             JMP CHANGE_DOT_LINE
+                     377     
+0225                 378     PAGE_3:
+0225                 379     PAGE_3_MAIN:
+0225 514F            380             ACALL LCM_RESET
+0227 7F10            381             MOV R7, #010H
+0229 7E80            382             MOV R6, #080H
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     7
+
+                     383     
+022B                 384     PAGE_3_PRINT_NULL1:
+022B EE              385             MOV A, R6
+022C 5154            386             ACALL WRIR
+022E 7404            387             MOV A, #04H
+0230 5161            388             ACALL WRDR
+0232 0E              389             INC R6
+0233 DFF6            390             DJNZ R7, PAGE_3_PRINT_NULL1
+                     391             
+0235 7F10            392             MOV R7, #010H
+0237 7EC0            393             MOV R6, #0C0H
+                     394     
+0239                 395     PAGE_3_PRINT_NULL2:
+0239 EE              396             MOV A, R6
+023A 5154            397             ACALL WRIR
+023C 7404            398             MOV A, #04H
+023E 5161            399             ACALL WRDR
+0240 0E              400             INC R6
+0241 DFF6            401             DJNZ R7, PAGE_3_PRINT_NULL2
+                     402     
+0243                 403     PAGE_3_RETURN:
+0243 51DF            404             ACALL KEYPAD_DETECT
+0245 E8              405             MOV A, R0
+0246 29              406             ADD A, R1
+0247 900095          407             MOV DPTR, #KEYPAD_NUM
+024A 93              408             MOVC A, @A+DPTR
+024B B40FF5          409             CJNE A, #0FH, PAGE_3_RETURN
+024E 22              410             RET
+                     411     
+                     412     ;LCM----------------------------
+024F                 413     LCM_RESET:
+024F 7401            414             MOV A,#00000001B
+0251 5154            415             ACALL WRIR
+0253 22              416             RET
+                     417     
+0254                 418     WRIR:
+0254 F580            419             MOV LCD_DATA, A
+0256 C2B2            420             CLR LCD_RS
+0258 D2B0            421             SETB LCD_EN
+025A 51CF            422             ACALL DELAY10MS
+025C C2B0            423             CLR LCD_EN
+025E 51CF            424             ACALL DELAY10MS
+0260 22              425             RET
+                     426     
+0261                 427     WRDR:
+0261 F580            428             MOV LCD_DATA, A
+0263 D2B2            429             SETB LCD_RS
+0265 D2B0            430             SETB LCD_EN
+0267 51CF            431             ACALL DELAY10MS
+0269 C2B0            432             CLR LCD_EN
+026B 51CF            433             ACALL DELAY10MS
+026D 22              434             RET
+                     435     
+026E                 436     WRITE_CUSTOM_CHAR1:
+026E                 437     WRITE_CUSTOM_CHAR1_INIT:
+026E 7440            438             MOV A, #040H
+0270 5154            439             ACALL WRIR
+0272 900050          440             MOV DPTR, #CUSTOM_CHAR1
+0275 7808            441             MOV R0, #08H
+0277                 442     WRITE_CUSTOM_CHAR1_MAIN:
+0277 7400            443             MOV  A, #00H
+0279 93              444             MOVC A, @A+DPTR
+027A 5161            445             ACALL WRDR
+027C A3              446             INC DPTR
+027D D8F8            447             DJNZ R0, WRITE_CUSTOM_CHAR1_MAIN
+027F 22              448             RET
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     8
+
+                     449     
+0280                 450     WRITE_CUSTOM_CHAR2:
+0280                 451     WRITE_CUSTOM_CHAR2_INIT:
+0280 7448            452             MOV A, #048H
+0282 5154            453             ACALL WRIR
+0284 900058          454             MOV DPTR, #CUSTOM_CHAR2
+0287 7808            455             MOV R0, #08H
+0289                 456     WRITE_CUSTOM_CHAR2_MAIN:
+0289 7400            457             MOV  A, #00H
+028B 93              458             MOVC A, @A+DPTR
+028C 5161            459             ACALL WRDR
+028E A3              460             INC DPTR
+028F D8F8            461             DJNZ R0, WRITE_CUSTOM_CHAR2_MAIN
+0291 22              462             RET     
+                     463     
+0292                 464     WRITE_CUSTOM_CHAR3:
+0292                 465     WRITE_CUSTOM_CHAR3_INIT:
+0292 7450            466             MOV A, #050H
+0294 5154            467             ACALL WRIR
+0296 900060          468             MOV DPTR, #CUSTOM_CHAR3
+0299 7808            469             MOV R0, #08H
+029B                 470     WRITE_CUSTOM_CHAR3_MAIN:
+029B 7400            471             MOV  A, #00H
+029D 93              472             MOVC A, @A+DPTR
+029E 5161            473             ACALL WRDR
+02A0 A3              474             INC DPTR
+02A1 D8F8            475             DJNZ R0, WRITE_CUSTOM_CHAR3_MAIN
+02A3 22              476             RET     
+                     477     
+02A4                 478     WRITE_CUSTOM_CHAR4:
+02A4                 479     WRITE_CUSTOM_CHAR4_INIT:
+02A4 7458            480             MOV A, #058H
+02A6 5154            481             ACALL WRIR
+02A8 900068          482             MOV DPTR, #CUSTOM_CHAR4
+02AB 7808            483             MOV R0, #08H
+02AD                 484     WRITE_CUSTOM_CHAR4_MAIN:
+02AD 7400            485             MOV  A, #00H
+02AF 93              486             MOVC A, @A+DPTR
+02B0 5161            487             ACALL WRDR
+02B2 A3              488             INC DPTR
+02B3 D8F8            489             DJNZ R0, WRITE_CUSTOM_CHAR4_MAIN
+02B5 22              490             RET     
+                     491     
+02B6                 492     WRITE_CUSTOM_CHAR5:
+02B6                 493     WRITE_CUSTOM_CHAR5_INIT:
+02B6 7460            494             MOV A, #060H
+02B8 5154            495             ACALL WRIR
+02BA 900070          496             MOV DPTR, #CUSTOM_CHAR5
+02BD 7808            497             MOV R0, #08H
+02BF                 498     WRITE_CUSTOM_CHAR5_MAIN:
+02BF 7400            499             MOV  A, #00H
+02C1 93              500             MOVC A, @A+DPTR
+02C2 5161            501             ACALL WRDR
+02C4 A3              502             INC DPTR
+02C5 D8F8            503             DJNZ R0, WRITE_CUSTOM_CHAR5_MAIN
+02C7 22              504             RET     
+                     505     
+02C8                 506     DELAY200MS:
+02C8 7F14            507             MOV R7, #20
+02CA                 508     DELAY200MS_MAIN:
+02CA 51CF            509             ACALL DELAY10MS
+02CC DFFC            510             DJNZ R7, DELAY200MS_MAIN
+02CE 22              511             RET
+                     512     
+02CF                 513     DELAY10MS:
+02CF 758CD8          514             MOV TH0, #0D8H   
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE     9
+
+02D2 758AF0          515             MOV TL0, #0F0H   
+02D5 D28C            516             SETB TR0        
+02D7 308DFD          517             JNB TF0, $
+02DA C28C            518             CLR TR0
+02DC C28D            519             CLR TF0
+02DE 22              520             RET
+                     521     
+                     522     ;KEYPAD-------------------------
+02DF                 523     KEYPAD_DETECT:
+02DF 7810            524             MOV R0, #010H
+02E1 7900            525             MOV R1, #00H
+                     526     
+02E3                 527     DETECTCOL0:
+02E3 75907F          528         MOV KEYPAD_IO, #07FH
+02E6 714D            529             ACALL DELAY4MS
+02E8 E590            530             MOV A, KEYPAD_IO
+02EA 540F            531         ANL A, #0FH
+02EC FA              532             MOV R2, A
+02ED C3              533             CLR C
+02EE 940F            534             SUBB A, #0FH
+02F0 6005            535         JZ DETECTCOL1
+02F2 7800            536             MOV R0, #00H
+02F4 7134            537             ACALL DETECTROW
+02F6 22              538             RET
+                     539     
+02F7                 540     DETECTCOL1:
+02F7 7590BF          541             MOV KEYPAD_IO, #0BFH
+02FA 714D            542             ACALL DELAY4MS
+02FC E590            543             MOV A, KEYPAD_IO
+02FE 540F            544             ANL A, #0FH
+0300 FA              545             MOV R2, A
+0301 C3              546             CLR C
+0302 940F            547             SUBB A, #0FH
+0304 6005            548             JZ DETECTCOL2
+0306 7804            549             MOV R0, #04H
+0308 7134            550             ACALL DETECTROW
+030A 22              551             RET
+                     552     
+030B                 553     DETECTCOL2:
+030B 7590DF          554             MOV KEYPAD_IO, #0DFH
+030E 714D            555             ACALL DELAY4MS
+0310 E590            556             MOV A, KEYPAD_IO
+0312 540F            557             ANL A, #0FH
+0314 FA              558             MOV R2, A
+0315 C3              559             CLR C
+0316 940F            560             SUBB A, #0FH
+0318 6005            561             JZ DETECTCOL3   
+031A 7808            562             MOV R0, #08H
+031C 7134            563             ACALL DETECTROW
+031E 22              564             RET
+                     565     
+031F                 566     DETECTCOL3:
+031F 7590EF          567             MOV KEYPAD_IO, #0EFH
+0322 714D            568             ACALL DELAY4MS
+0324 E590            569             MOV A, KEYPAD_IO
+0326 540F            570             ANL A, #0FH
+0328 FA              571             MOV R2, A
+0329 C3              572             CLR C
+032A 940F            573             SUBB A, #0FH
+032C 6005            574             JZ DEFAULT_NOPRESSED
+032E 780C            575             MOV R0, #0CH
+0330 7134            576             ACALL DETECTROW
+0332 22              577             RET
+                     578     
+0333                 579     DEFAULT_NOPRESSED:
+0333 22              580             RET
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE    10
+
+                     581     
+0334                 582     DETECTROW:
+0334 BA0E03          583             CJNE R2, #0EH,  NOTPRESSEDROW0
+0337 7900            584             MOV R1, #00H
+0339 22              585             RET
+                     586     
+033A                 587     NOTPRESSEDROW0:
+033A BA0D03          588             CJNE R2, #0DH,  NOTPRESSEDROW1
+033D 7901            589             MOV R1, #01H
+033F 22              590             RET
+                     591     
+0340                 592     NOTPRESSEDROW1:
+0340 BA0B03          593             CJNE R2, #0BH,  NOTPRESSEDROW2
+0343 7902            594             MOV R1, #02H
+0345 22              595             RET
+                     596     
+0346                 597     NOTPRESSEDROW2:
+0346 BA0703          598             CJNE R2, #07H,  DEFAULT
+0349 7903            599             MOV R1, #03H
+034B 22              600             RET
+                     601     
+034C                 602     DEFAULT:
+034C 22              603             RET
+                     604             
+034D                 605     DELAY4MS:
+034D 758CF0          606             MOV TH0, #0F0H
+0350 758A60          607             MOV TL0, #060H
+0353 D28C            608             SETB TR0        
+0355 308DFD          609             JNB TF0, $
+0358 C28C            610             CLR TR0
+035A C28D            611             CLR TF0
+035C 22              612             RET
+                     613             END
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE    11
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E                  T Y P E  V A L U E   ATTRIBUTES
+
+ANIMATION . . . . . . .  C ADDR   01E9H   A   
+ANIMATION_DATA. . . . .  C ADDR   0086H   A   
+CHANGE_DOT_LINE . . . .  C ADDR   020FH   A   
+CHECK_ANIMATION_END . .  C ADDR   01F0H   A   
+CUSTOM_CHAR1. . . . . .  C ADDR   0050H   A   
+CUSTOM_CHAR2. . . . . .  C ADDR   0058H   A   
+CUSTOM_CHAR3. . . . . .  C ADDR   0060H   A   
+CUSTOM_CHAR4. . . . . .  C ADDR   0068H   A   
+CUSTOM_CHAR5. . . . . .  C ADDR   0070H   A   
+DEFAULT . . . . . . . .  C ADDR   034CH   A   
+DEFAULT_NOPRESSED . . .  C ADDR   0333H   A   
+DELAY10MS . . . . . . .  C ADDR   02CFH   A   
+DELAY200MS. . . . . . .  C ADDR   02C8H   A   
+DELAY200MS_MAIN . . . .  C ADDR   02CAH   A   
+DELAY4MS. . . . . . . .  C ADDR   034DH   A   
+DETECTCOL0. . . . . . .  C ADDR   02E3H   A   
+DETECTCOL1. . . . . . .  C ADDR   02F7H   A   
+DETECTCOL2. . . . . . .  C ADDR   030BH   A   
+DETECTCOL3. . . . . . .  C ADDR   031FH   A   
+DETECTROW . . . . . . .  C ADDR   0334H   A   
+DETECT_MODE . . . . . .  C ADDR   00E6H   A   
+DRAW_DOT. . . . . . . .  C ADDR   020CH   A   
+DRAW_DOT_END. . . . . .  C ADDR   0216H   A   
+DRAW_DOT_MAIN . . . . .  C ADDR   021AH   A   
+INIT. . . . . . . . . .  C ADDR   00A6H   A   
+KEYPAD_DETECT . . . . .  C ADDR   02DFH   A   
+KEYPAD_IO . . . . . . .  D ADDR   0090H   A   
+KEYPAD_NUM. . . . . . .  C ADDR   0095H   A   
+LCD_DATA. . . . . . . .  D ADDR   0080H   A   
+LCD_EN. . . . . . . . .  B ADDR   00B0H.0 A   
+LCD_RS. . . . . . . . .  B ADDR   00B0H.2 A   
+LCD_RW. . . . . . . . .  B ADDR   00B0H.1 A   
+LCM_NUM . . . . . . . .  C ADDR   008BH   A   
+LCM_RESET . . . . . . .  C ADDR   024FH   A   
+LOOP. . . . . . . . . .  C ADDR   00D4H   A   
+MAIN. . . . . . . . . .  C ADDR   00D8H   A   
+NOTPRESSEDROW0. . . . .  C ADDR   033AH   A   
+NOTPRESSEDROW1. . . . .  C ADDR   0340H   A   
+NOTPRESSEDROW2. . . . .  C ADDR   0346H   A   
+P0. . . . . . . . . . .  D ADDR   0080H   A   
+P1. . . . . . . . . . .  D ADDR   0090H   A   
+P3. . . . . . . . . . .  D ADDR   00B0H   A   
+PAGE_1. . . . . . . . .  C ADDR   0105H   A   
+PAGE_1_MAIN . . . . . .  C ADDR   010DH   A   
+PAGE_2. . . . . . . . .  C ADDR   01DBH   A   
+PAGE_2_MAIN . . . . . .  C ADDR   01DDH   A   
+PAGE_3. . . . . . . . .  C ADDR   0225H   A   
+PAGE_3_MAIN . . . . . .  C ADDR   0225H   A   
+PAGE_3_PRINT_NULL1. . .  C ADDR   022BH   A   
+PAGE_3_PRINT_NULL2. . .  C ADDR   0239H   A   
+PAGE_3_RETURN . . . . .  C ADDR   0243H   A   
+PAGE_LOBBY. . . . . . .  C ADDR   00D8H   A   
+PAGE_LOBBY_MAIN . . . .  C ADDR   00DFH   A   
+PAGE_LOBBY_STRING . . .  C ADDR   0078H   A   
+RUN_ANIMATION . . . . .  C ADDR   01F5H   A   
+RUN_ANIMATION_MAIN. . .  C ADDR   01F7H   A   
+SELECT_NUM. . . . . . .  C ADDR   0119H   A   
+SELECT_NUM0 . . . . . .  C ADDR   011EH   A   
+SELECT_NUM1 . . . . . .  C ADDR   012EH   A   
+SELECT_NUM2 . . . . . .  C ADDR   013EH   A   
+A51 MACRO ASSEMBLER  LAB_MIDTERM                                                          11/11/2025 21:33:59 PAGE    12
+
+SELECT_NUM3 . . . . . .  C ADDR   014EH   A   
+SELECT_NUM4 . . . . . .  C ADDR   015EH   A   
+SELECT_NUM5 . . . . . .  C ADDR   016EH   A   
+SELECT_NUM6 . . . . . .  C ADDR   017EH   A   
+SELECT_NUM7 . . . . . .  C ADDR   018EH   A   
+SELECT_NUM8 . . . . . .  C ADDR   019EH   A   
+SELECT_NUM9 . . . . . .  C ADDR   01AEH   A   
+SELECT_PAGE . . . . . .  C ADDR   00EFH   A   
+SELECT_PAGE1. . . . . .  C ADDR   00F3H   A   
+SELECT_PAGE2. . . . . .  C ADDR   00F9H   A   
+SELECT_PAGE3. . . . . .  C ADDR   00FFH   A   
+SHIFT_ANIMATION_LINE. .  C ADDR   01E9H   A   
+SHIFT_JUMP. . . . . . .  C ADDR   01C3H   A   
+SHIFT_NUM . . . . . . .  C ADDR   01BEH   A   
+SHIFT_NUM1. . . . . . .  C ADDR   01C5H   A   
+SHIFT_NUM2. . . . . . .  C ADDR   01D1H   A   
+TF0 . . . . . . . . . .  B ADDR   0088H.5 A   
+TH0 . . . . . . . . . .  D ADDR   008CH   A   
+TL0 . . . . . . . . . .  D ADDR   008AH   A   
+TMOD. . . . . . . . . .  D ADDR   0089H   A   
+TR0 . . . . . . . . . .  B ADDR   0088H.4 A   
+WRDR. . . . . . . . . .  C ADDR   0261H   A   
+WRIR. . . . . . . . . .  C ADDR   0254H   A   
+WRITE_CUSTOM_CHAR1. . .  C ADDR   026EH   A   
+WRITE_CUSTOM_CHAR1_INIT  C ADDR   026EH   A   
+WRITE_CUSTOM_CHAR1_MAIN  C ADDR   0277H   A   
+WRITE_CUSTOM_CHAR2. . .  C ADDR   0280H   A   
+WRITE_CUSTOM_CHAR2_INIT  C ADDR   0280H   A   
+WRITE_CUSTOM_CHAR2_MAIN  C ADDR   0289H   A   
+WRITE_CUSTOM_CHAR3. . .  C ADDR   0292H   A   
+WRITE_CUSTOM_CHAR3_INIT  C ADDR   0292H   A   
+WRITE_CUSTOM_CHAR3_MAIN  C ADDR   029BH   A   
+WRITE_CUSTOM_CHAR4. . .  C ADDR   02A4H   A   
+WRITE_CUSTOM_CHAR4_INIT  C ADDR   02A4H   A   
+WRITE_CUSTOM_CHAR4_MAIN  C ADDR   02ADH   A   
+WRITE_CUSTOM_CHAR5. . .  C ADDR   02B6H   A   
+WRITE_CUSTOM_CHAR5_INIT  C ADDR   02B6H   A   
+WRITE_CUSTOM_CHAR5_MAIN  C ADDR   02BFH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

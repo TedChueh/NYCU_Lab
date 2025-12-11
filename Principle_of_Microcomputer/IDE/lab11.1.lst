@@ -1,0 +1,257 @@
+A51 MACRO ASSEMBLER  LAB11_1                                                              12/02/2025 22:20:10 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab11.1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab11\lab11.1.asm SET(SMALL) DEBUG PRINT(.\lab11.1.lst) OBJECT(.\lab11.
+                      1.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 015A              2             AJMP INIT
+                       3     
+000B                   4             ORG 0BH
+000B 01F9              5             AJMP TIMER0_ISR
+                       6     
+0013                   7             ORG 013H
+0013 2113              8             AJMP LOAD_DISTANCE
+                       9     
+0050                  10             ORG 50H
+                      11     
+0050                  12     SEG_DATA:
+0050 03               13             DB 03H
+0051 9F               14             DB 09FH
+0052 25               15             DB 025H
+0053 0D               16             DB 0DH
+0054 99               17             DB 099H
+0055 49               18             DB 049H
+0056 41               19             DB 041H
+0057 1F               20             DB 01FH
+0058 01               21             DB 01H
+0059 09               22             DB 09H
+                      23     
+005A                  24     INIT:
+005A 900050           25             MOV DPTR, #SEG_DATA
+005D 7589D1           26             MOV TMOD, #0D1H 
+0060 759000           27             MOV P1, #00H 
+0063 75A0FF           28             MOV P2, #0FFH ;segment display output
+0066 758077           29             MOV P0, #01110111B ;initial value for display shift register
+                      30     
+                      31             
+0069 7800             32             MOV R0, #00H ;tens/ single digit units
+006B 7900             33             MOV R1, #00H ;thousands/ hundreds digit
+                      34     
+006D 7E00             35             MOV R6, #00H ;loop counter for display multiplexing
+006F 7F10             36             MOV R7, #010H ;loop counter for 16 bits 
+                      37             
+0071 D2AA             38             SETB EX1 ;external interrupt 1
+0073 D28A             39             SETB IT1 ;edge triggered
+0075 D2A9             40             SETB ET0 ;enable timer0 interrupt
+0077 D2AF             41             SETB EA  ;enable global interrupt
+                      42             
+0079 D28C             43             SETB TR0 ;start timer0
+007B D28E             44             SETB TR1 ;start timer1
+                      45     
+007D                  46     LOOP:
+007D 80FE             47             JMP LOOP
+                      48     
+007F                  49     DISPLAY:
+007F E580             50             MOV A, P0
+0081 03               51             RR A
+0082 F580             52             MOV P0, A
+                      53     
+0084                  54     DISPLAY_DIGIT3:
+0084 B47708           55             CJNE A, #01110111B, DISPLAY_DIGIT2
+0087 E9               56             MOV A, R1
+0088 54F0             57             ANL A, #0F0H
+A51 MACRO ASSEMBLER  LAB11_1                                                              12/02/2025 22:20:10 PAGE     2
+
+008A C4               58             SWAP A
+008B 93               59             MOVC A, @A+DPTR
+008C F5A0             60             MOV P2, A
+008E 22               61             RET
+                      62     
+008F                  63     DISPLAY_DIGIT2:
+008F B4BB07           64             CJNE A, #10111011B, DISPLAY_DIGIT1
+0092 E9               65             MOV A, R1
+0093 540F             66             ANL A, #0FH
+0095 93               67             MOVC A, @A+DPTR
+0096 F5A0             68             MOV P2, A
+0098 22               69             RET
+                      70     
+0099                  71     DISPLAY_DIGIT1:
+0099 B4DD08           72             CJNE A, #11011101B, DISPLAY_DIGIT0
+009C E8               73             MOV A, R0
+009D 54F0             74             ANL A, #0F0H
+009F C4               75             SWAP A
+00A0 93               76             MOVC A, @A+DPTR
+00A1 F5A0             77             MOV P2, A
+00A3 22               78             RET
+                      79     
+00A4                  80     DISPLAY_DIGIT0:
+00A4 B4EE07           81             CJNE A, #11101110B, DEFAULT
+00A7 E8               82             MOV A, R0
+00A8 540F             83             ANL A, #0FH
+00AA 93               84             MOVC A, @A+DPTR
+00AB F5A0             85             MOV P2, A
+00AD 22               86             RET
+                      87     
+00AE                  88     DEFAULT:
+00AE 22               89             RET
+                      90     
+00AF                  91     DOUBLE_DABBLE_ALGORITHM:
+00AF 7800             92         MOV R0, #00H        ; low 2 BCD digits
+00B1 7900             93         MOV R1, #00H        ; high 2 BCD digits
+00B3 7F10             94         MOV R7, #10H        ; 16 bits loop
+                      95     
+00B5                  96     ADJUST_DIGIT:
+                      97     
+00B5                  98     ADJUST_DIGIT3:
+00B5 E9               99         MOV A, R1
+00B6 54F0            100         ANL A, #0F0H
+00B8 C3              101             CLR C
+00B9 9450            102             SUBB A, #050H
+00BB 4004            103         JC ADJUST_DIGIT2
+00BD E9              104         MOV A, R1
+00BE 2430            105         ADD A, #30H         
+00C0 F9              106         MOV R1, A
+                     107     
+00C1                 108     ADJUST_DIGIT2:
+00C1 E9              109         MOV A, R1
+00C2 540F            110         ANL A, #0FH
+00C4 C3              111             CLR C
+00C5 9405            112             SUBB A, #05H
+00C7 4004            113         JC ADJUST_DIGIT1
+00C9 E9              114         MOV A, R1
+00CA 2403            115         ADD A, #03H         
+00CC F9              116         MOV R1, A
+                     117     
+00CD                 118     ADJUST_DIGIT1:
+00CD E8              119         MOV A, R0
+00CE 54F0            120         ANL A, #0F0H
+00D0 C3              121             CLR C
+00D1 9450            122             SUBB A, #050H
+00D3 4004            123         JC ADJUST_DIGIT0
+A51 MACRO ASSEMBLER  LAB11_1                                                              12/02/2025 22:20:10 PAGE     3
+
+00D5 E8              124         MOV A, R0
+00D6 2430            125         ADD A, #30H         
+00D8 F8              126         MOV R0, A
+                     127     
+00D9                 128     ADJUST_DIGIT0:
+00D9 E8              129         MOV A, R0
+00DA 540F            130         ANL A, #0FH
+00DC C3              131             CLR C
+00DD 9405            132             SUBB A, #05H
+00DF 4004            133         JC SHIFT_LEFT
+00E1 E8              134         MOV A, R0
+00E2 2403            135         ADD A, #03H        
+00E4 F8              136         MOV R0, A
+                     137     
+00E5                 138     SHIFT_LEFT:
+00E5 C3              139         CLR C
+                     140     
+00E6 E58B            141         MOV A, TL1
+00E8 33              142         RLC A
+00E9 F58B            143         MOV TL1, A
+                     144     
+00EB E58D            145         MOV A, TH1
+00ED 33              146         RLC A
+00EE F58D            147         MOV TH1, A
+                     148     
+00F0 E8              149         MOV A, R0
+00F1 33              150         RLC A
+00F2 F8              151         MOV R0, A
+                     152     
+00F3 E9              153         MOV A, R1
+00F4 33              154         RLC A
+00F5 F9              155         MOV R1, A
+                     156     
+00F6                 157     END_DOUBLE_DABBLE:
+00F6 DFBD            158         DJNZ R7, ADJUST_DIGIT
+00F8 22              159         RET
+                     160     
+00F9                 161     TIMER0_ISR:
+00F9 C0E0            162             PUSH ACC
+00FB BE8F04          163             CJNE R6, #08FH, INVERT_P1
+00FE 7E00            164             MOV R6, #00H
+0100 117F            165             ACALL DISPLAY
+                     166     
+0102                 167     INVERT_P1:
+0102 0E              168             INC R6
+0103 E590            169             MOV A, P1
+0105 F4              170             CPL A
+0106 F590            171             MOV P1, A
+0108 758CFF          172             MOV TH0, #0FFH
+010B 758AE3          173             MOV TL0, #0E3H
+010E C28D            174             CLR TF0
+0110 D0E0            175             POP ACC
+0112 32              176             RETI
+                     177     
+0113                 178     LOAD_DISTANCE:
+0113 C0E0            179             PUSH ACC
+0115 C28E            180             CLR TR1
+0117 11AF            181             ACALL DOUBLE_DABBLE_ALGORITHM
+0119 E58D            182             MOV A, TH1
+011B E4              183             CLR A
+011C F58D            184             MOV TH1, A
+011E E58B            185             MOV A, TL1
+0120 E4              186             CLR A
+0121 F58B            187             MOV TL1, A
+0123 D28E            188             SETB TR1
+0125 D0E0            189             POP ACC
+A51 MACRO ASSEMBLER  LAB11_1                                                              12/02/2025 22:20:10 PAGE     4
+
+0127 32              190             RETI
+                     191             END
+A51 MACRO ASSEMBLER  LAB11_1                                                              12/02/2025 22:20:10 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E                  T Y P E  V A L U E   ATTRIBUTES
+
+ACC . . . . . . . . . .  D ADDR   00E0H   A   
+ADJUST_DIGIT. . . . . .  C ADDR   00B5H   A   
+ADJUST_DIGIT0 . . . . .  C ADDR   00D9H   A   
+ADJUST_DIGIT1 . . . . .  C ADDR   00CDH   A   
+ADJUST_DIGIT2 . . . . .  C ADDR   00C1H   A   
+ADJUST_DIGIT3 . . . . .  C ADDR   00B5H   A   
+DEFAULT . . . . . . . .  C ADDR   00AEH   A   
+DISPLAY . . . . . . . .  C ADDR   007FH   A   
+DISPLAY_DIGIT0. . . . .  C ADDR   00A4H   A   
+DISPLAY_DIGIT1. . . . .  C ADDR   0099H   A   
+DISPLAY_DIGIT2. . . . .  C ADDR   008FH   A   
+DISPLAY_DIGIT3. . . . .  C ADDR   0084H   A   
+DOUBLE_DABBLE_ALGORITHM  C ADDR   00AFH   A   
+EA. . . . . . . . . . .  B ADDR   00A8H.7 A   
+END_DOUBLE_DABBLE . . .  C ADDR   00F6H   A   
+ET0 . . . . . . . . . .  B ADDR   00A8H.1 A   
+EX1 . . . . . . . . . .  B ADDR   00A8H.2 A   
+INIT. . . . . . . . . .  C ADDR   005AH   A   
+INVERT_P1 . . . . . . .  C ADDR   0102H   A   
+IT1 . . . . . . . . . .  B ADDR   0088H.2 A   
+LOAD_DISTANCE . . . . .  C ADDR   0113H   A   
+LOOP. . . . . . . . . .  C ADDR   007DH   A   
+P0. . . . . . . . . . .  D ADDR   0080H   A   
+P1. . . . . . . . . . .  D ADDR   0090H   A   
+P2. . . . . . . . . . .  D ADDR   00A0H   A   
+SEG_DATA. . . . . . . .  C ADDR   0050H   A   
+SHIFT_LEFT. . . . . . .  C ADDR   00E5H   A   
+TF0 . . . . . . . . . .  B ADDR   0088H.5 A   
+TH0 . . . . . . . . . .  D ADDR   008CH   A   
+TH1 . . . . . . . . . .  D ADDR   008DH   A   
+TIMER0_ISR. . . . . . .  C ADDR   00F9H   A   
+TL0 . . . . . . . . . .  D ADDR   008AH   A   
+TL1 . . . . . . . . . .  D ADDR   008BH   A   
+TMOD. . . . . . . . . .  D ADDR   0089H   A   
+TR0 . . . . . . . . . .  B ADDR   0088H.4 A   
+TR1 . . . . . . . . . .  B ADDR   0088H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

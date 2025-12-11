@@ -1,0 +1,85 @@
+A51 MACRO ASSEMBLER  LAB12_1                                                              12/09/2025 19:14:16 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab12.1.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab12\lab12.1.asm SET(SMALL) DEBUG PRINT(.\lab12.1.lst) OBJECT(.\lab12.
+                      1.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0150              2             AJMP INIT
+                       3     
+0023                   4             ORG 23H
+0023 0166              5             AJMP SERIAL_ISR
+                       6     
+0050                   7             ORG 50H
+                       8     
+                       9     
+0050                  10     INIT:
+0050 758921           11             MOV TMOD, #00100001B ;timer1 mode2, timer0 mode1
+0053 759850           12             MOV SCON, #01010000B ;serial mode1, REN enabled
+0056 75A890           13             MOV IE,   #10010000B ;enable global, serial interrupt
+0059 438780           14             ORL PCON,#10000000B ;SETTING PCON.7 SMOD 1 BAUD RATE =FORCS/32 TI
+005C 758DF3           15             MOV TH1,#0F3H
+005F 758BF3           16             MOV TL1,#0F3H
+0062 D28E             17             SETB TR1 ;start timer1
+                      18     
+0064                  19     LOOP:
+0064 80FE             20             JMP LOOP
+                      21     
+0066                  22     SERIAL_ISR:
+0066 C0E0             23             PUSH ACC
+0068 209809           24             JB RI, RECEIVE_CHAR
+006B 209910           25             JB TI, TRANSMIT_CHAR
+006E C298             26             CLR RI
+0070 C299             27             CLR TI
+0072 800E             28             JMP EXIT_ISR
+                      29     
+0074                  30     RECEIVE_CHAR:
+0074 E599             31             MOV A, SBUF
+0076 2420             32             ADD A, #020H
+0078 C298             33             CLR RI
+007A F599             34             MOV SBUF, A
+007C 8004             35             JMP EXIT_ISR
+                      36     
+007E                  37     TRANSMIT_CHAR:
+007E C299             38             CLR TI
+0080 8000             39             JMP EXIT_ISR
+                      40     
+0082                  41     EXIT_ISR:
+0082 D0E0             42             POP ACC
+0084 32               43             RETI
+*** WARNING #A41 IN 43 (..\lab12\lab12.1.asm, LINE 43): MISSING 'END' STATEMENT
+A51 MACRO ASSEMBLER  LAB12_1                                                              12/09/2025 19:14:16 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . .  D ADDR   00E0H   A   
+EXIT_ISR . . . . .  C ADDR   0082H   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INIT . . . . . . .  C ADDR   0050H   A   
+LOOP . . . . . . .  C ADDR   0064H   A   
+PCON . . . . . . .  D ADDR   0087H   A   
+RECEIVE_CHAR . . .  C ADDR   0074H   A   
+RI . . . . . . . .  B ADDR   0098H.0 A   
+SBUF . . . . . . .  D ADDR   0099H   A   
+SCON . . . . . . .  D ADDR   0098H   A   
+SERIAL_ISR . . . .  C ADDR   0066H   A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TI . . . . . . . .  B ADDR   0098H.1 A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+TRANSMIT_CHAR. . .  C ADDR   007EH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  1 WARNING(S), 0 ERROR(S)

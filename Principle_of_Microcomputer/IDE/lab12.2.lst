@@ -1,0 +1,211 @@
+A51 MACRO ASSEMBLER  LAB12_2                                                              12/09/2025 19:33:28 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab12.2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab12\lab12.2.asm SET(SMALL) DEBUG PRINT(.\lab12.2.lst) OBJECT(.\lab12.
+                      2.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0150              2             AJMP INIT
+                       3     
+000B                   4             ORG 0BH
+000B 0192              5             AJMP TIMER0_ISR
+                       6     
+0023                   7             ORG 23H
+0023 01A4              8             AJMP SERIAL_ISR
+                       9     
+0050                  10             ORG 50H
+                      11     
+                      12     
+0050                  13     INIT:
+0050 758921           14             MOV TMOD, #00100001B ;timer1 mode2, timer0 mode1
+0053 759850           15             MOV SCON, #01010000B ;serial mode1, REN enabled
+0056 75A892           16             MOV IE,   #10010010B ;enable global, serial interrupt and timer0 interrupt
+0059 438780           17             ORL PCON,#10000000B  ;SETTING PCON.7 SMOD 1 BAUD RATE =FORCS/32 TI
+005C 758DF3           18             MOV TH1,#0F3H
+005F 758BF3           19             MOV TL1,#0F3H
+                      20     
+0062 7A00             21             MOV R2, #00H  ;Buzzer Enable Flag
+0064 7B00             22             MOV R3, #00H  ;TH1
+0066 7C00             23             MOV R4, #00H  ;TL1
+0068 758000           24             MOV P0, #00H  ;Buzzer Output
+                      25     
+006B D28E             26             SETB TR1 ;start timer1
+                      27     
+006D                  28     LOOP:
+006D BA01FD           29             CJNE R2, #01H, LOOP
+0070 C28C             30             CLR TR0
+0072 C28E             31             CLR TR1
+0074 758911           32             MOV TMOD, #00010001B ;timer1 mode1, timer0 mode1
+0077 7E04             33             MOV R6, #04H
+0079 7FFA             34             MOV R7, #0FAH
+007B D28C             35             SETB TR0 ;start timer0
+007D 310D             36             ACALL DELAY1S
+                      37             
+007F C28C             38             CLR TR0
+0081 C28E             39             CLR TR1
+0083 758921           40             MOV TMOD, #00100001B ;timer1 mode2, timer0 mode1
+0086 758DF3           41             MOV TH1, #0F3H       ;4800 baud rate
+0089 758BF3           42             MOV TL1, #0F3H
+008C D28E             43             SETB TR1
+008E 7A00             44             MOV R2, #00H
+0090 80DB             45             JMP LOOP
+                      46     
+0092                  47     TIMER0_ISR:
+0092 C0E0             48             PUSH  ACC
+0094 C28C             49             CLR   TR0
+0096 8B8C             50             MOV   TH0, R3
+0098 8C8A             51             MOV   TL0, R4
+009A E580             52             MOV   A, P0
+009C F4               53             CPL   A
+009D F580             54             MOV   P0, A
+009F D28C             55             SETB  TR0
+00A1 D0E0             56             POP   ACC
+00A3 32               57             RETI
+A51 MACRO ASSEMBLER  LAB12_2                                                              12/09/2025 19:33:28 PAGE     2
+
+                      58     
+00A4                  59     SERIAL_ISR:
+00A4 C0E0             60             PUSH ACC
+00A6 209809           61             JB RI, RECEIVE_CHAR
+00A9 20990E           62             JB TI, TRANSMIT_CHAR
+00AC C298             63             CLR RI
+00AE C299             64             CLR TI
+00B0 800C             65             JMP EXIT_ISR
+                      66     
+00B2                  67     RECEIVE_CHAR:
+00B2 E599             68             MOV A, SBUF
+00B4 11C1             69             ACALL BUZZER_CHOOSE_FREQ
+00B6 C298             70             CLR RI
+00B8 8004             71             JMP EXIT_ISR
+                      72     
+00BA                  73     TRANSMIT_CHAR:
+00BA C299             74             CLR TI
+00BC 8000             75             JMP EXIT_ISR
+                      76     
+00BE                  77     EXIT_ISR:
+00BE D0E0             78             POP ACC
+00C0 32               79             RETI
+                      80     
+00C1                  81     BUZZER_CHOOSE_FREQ:
+00C1                  82     BUZZER_D0:
+00C1 B43107           83             CJNE A, #031H, BUZZER_RE
+00C4 7BFC             84                     MOV R3, #0FCH
+00C6 7C8F             85                     MOV R4, #08FH
+00C8 7A01             86                     MOV R2, #01H
+00CA 22               87                     RET
+                      88     
+00CB                  89     BUZZER_RE:
+00CB B43207           90             CJNE A, #032H, BUZZER_MI
+00CE 7BFC             91                     MOV R3, #0FCH
+00D0 7CEF             92                     MOV R4, #0EFH
+00D2 7A01             93                     MOV R2, #01H
+00D4 22               94                     RET
+                      95     
+00D5                  96     BUZZER_MI:
+00D5 B43307           97             CJNE A, #033H, BUZZER_FA
+00D8 7BFD             98                     MOV R3, #0FDH
+00DA 7C45             99                     MOV R4, #045H
+00DC 7A01            100                     MOV R2, #01H
+00DE 22              101                     RET
+                     102     
+00DF                 103     BUZZER_FA:
+00DF B43407          104             CJNE A, #034H, BUZZER_SO
+00E2 7BFD            105                     MOV R3, #0FDH
+00E4 7C6C            106                     MOV R4, #06CH
+00E6 7A01            107                     MOV R2, #01H
+00E8 22              108                     RET
+                     109     
+00E9                 110     BUZZER_SO:
+00E9 B43507          111             CJNE A, #035H, BUZZER_LA
+00EC 7BFD            112                     MOV R3, #0FDH
+00EE 7CB4            113                     MOV R4, #0B4H
+00F0 7A01            114                     MOV R2, #01H
+00F2 22              115                     RET
+                     116     
+00F3                 117     BUZZER_LA:
+00F3 B43607          118             CJNE A, #036H, BUZZER_SI
+00F6 7BFD            119                     MOV R3, #0FDH
+00F8 7CF4            120                     MOV R4, #0F4H
+00FA 7A01            121                     MOV R2, #01H
+00FC 22              122                     RET
+                     123     
+A51 MACRO ASSEMBLER  LAB12_2                                                              12/09/2025 19:33:28 PAGE     3
+
+00FD                 124     BUZZER_SI:
+00FD B43707          125             CJNE A, #037H, DEFAULT_NOSOUND
+0100 7BFE            126                     MOV R3, #0FEH
+0102 7C2E            127                     MOV R4, #02EH
+0104 7A01            128                     MOV R2, #01H
+0106 22              129                     RET
+                     130     
+0107                 131     DEFAULT_NOSOUND:
+0107 7A00            132             MOV R2, #00H
+0109 758000          133             MOV P0, #00H
+010C 22              134             RET
+                     135             
+010D                 136     DELAY1S:
+010D 758DFC          137             MOV TH1, #0FCH
+0110 758B18          138             MOV TL1, #018H
+0113 D28E            139             SETB TR1        
+                     140     
+0115                 141     WAIT:
+0115 308FFD          142             JNB TF1, $
+0118 C28E            143             CLR TR1
+011A C28F            144             CLR TF1
+011C DEEF            145             DJNZ R6, DELAY1S
+011E 7E04            146             MOV R6, #04H
+0120 DFEB            147             DJNZ R7, DELAY1S
+0122 22              148             RET
+                     149             END
+A51 MACRO ASSEMBLER  LAB12_2                                                              12/09/2025 19:33:28 PAGE     4
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . .  D ADDR   00E0H   A   
+BUZZER_CHOOSE_FREQ  C ADDR   00C1H   A   
+BUZZER_D0. . . . .  C ADDR   00C1H   A   
+BUZZER_FA. . . . .  C ADDR   00DFH   A   
+BUZZER_LA. . . . .  C ADDR   00F3H   A   
+BUZZER_MI. . . . .  C ADDR   00D5H   A   
+BUZZER_RE. . . . .  C ADDR   00CBH   A   
+BUZZER_SI. . . . .  C ADDR   00FDH   A   
+BUZZER_SO. . . . .  C ADDR   00E9H   A   
+DEFAULT_NOSOUND. .  C ADDR   0107H   A   
+DELAY1S. . . . . .  C ADDR   010DH   A   
+EXIT_ISR . . . . .  C ADDR   00BEH   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INIT . . . . . . .  C ADDR   0050H   A   
+LOOP . . . . . . .  C ADDR   006DH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+PCON . . . . . . .  D ADDR   0087H   A   
+RECEIVE_CHAR . . .  C ADDR   00B2H   A   
+RI . . . . . . . .  B ADDR   0098H.0 A   
+SBUF . . . . . . .  D ADDR   0099H   A   
+SCON . . . . . . .  D ADDR   0098H   A   
+SERIAL_ISR . . . .  C ADDR   00A4H   A   
+TF1. . . . . . . .  B ADDR   0088H.7 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TI . . . . . . . .  B ADDR   0098H.1 A   
+TIMER0_ISR . . . .  C ADDR   0092H   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+TRANSMIT_CHAR. . .  C ADDR   00BAH   A   
+WAIT . . . . . . .  C ADDR   0115H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

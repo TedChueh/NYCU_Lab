@@ -1,0 +1,193 @@
+A51 MACRO ASSEMBLER  LAB10_1_2                                                            11/25/2025 18:08:54 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab10.1.2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab10\lab10.1.2.asm SET(SMALL) DEBUG PRINT(.\lab10.1.2.lst) OBJECT(.\la
+                      b10.1.2.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0150              2             AJMP INIT
+                       3     
+000B                   4             ORG 0BH
+000B 01DB              5             AJMP RESET_TIMER0
+                       6     
+001B                   7             ORG 01BH
+001B 01F2              8             AJMP RESET_TIMER1
+                       9             
+0050                  10             ORG 50H
+                      11     
+0050                  12     INIT:
+0050 758911           13             MOV TMOD, #011H
+0053 75A88A           14             MOV IE, #10001010B   ; EA=1, ET1=1, ET0=1
+                      15             
+0056 758000           16             MOV P0, #00H
+0059 780C             17             MOV R0, #0CH ; 12 Frequenze For The Buzzer Buzz
+005B 7900             18             MOV R1, #00H ; Loop Count For The Buzzer Buzz In 1 Second For The Specific Frequenc
+                             e
+005D 7AFC             19             MOV R2, #0FCH ; Temp For TH1
+005F 7B8F             20             MOV R3, #08FH ; Temp For TL1
+                      21     
+0061 758CFF           22             MOV  TH0, #0FFH
+0064 758AFF           23             MOV  TL0, #0FFH 
+0067 758DFF           24             MOV  TH1, #0FFH
+006A 758BFF           25             MOV  TL1, #0FFH
+006D D28C             26             SETB TR0
+006F D28E             27             SETB TR1
+                      28     
+0071                  29     LOOP:
+0071 80FE             30             JMP $
+                      31     
+0073                  32     BUZZER_CHOOSE_FREQ:
+0073                  33     BUZZER_D0:
+0073 B80C05           34             CJNE R0, #0CH, BUZZER_D0_
+0076 7AFC             35                     MOV R2, #0FCH
+0078 7B8F             36                     MOV R3, #08FH
+007A 22               37                     RET
+                      38     
+007B                  39     BUZZER_D0_:
+007B B80B05           40             CJNE R0, #0BH, BUZZER_RE
+007E 7AFC             41                     MOV R2, #0FCH
+0080 7BC0             42                     MOV R3, #0C0H
+0082 22               43                     RET
+                      44     
+0083                  45     BUZZER_RE:
+0083 B80A05           46             CJNE R0, #0AH, BUZZER_RE_
+0086 7AFC             47                     MOV R2, #0FCH
+0088 7BEF             48                     MOV R3, #0EFH
+008A 22               49                     RET
+                      50     
+008B                  51     BUZZER_RE_:
+008B B80905           52             CJNE R0, #09H, BUZZER_MI
+008E 7AFD             53                     MOV R2, #0FDH
+0090 7B1B             54                     MOV R3, #01BH
+0092 22               55                     RET
+                      56     
+A51 MACRO ASSEMBLER  LAB10_1_2                                                            11/25/2025 18:08:54 PAGE     2
+
+0093                  57     BUZZER_MI:
+0093 B80805           58             CJNE R0, #08H, BUZZER_FA
+0096 7AFD             59                     MOV R2, #0FDH
+0098 7B45             60                     MOV R3, #045H
+009A 22               61                     RET
+                      62     
+009B                  63     BUZZER_FA:
+009B B80705           64             CJNE R0, #07H, BUZZER_FA_
+009E 7AFD             65                     MOV R2, #0FDH
+00A0 7B6C             66                     MOV R3, #06CH
+00A2 22               67                     RET
+                      68     
+00A3                  69     BUZZER_FA_:
+00A3 B80605           70             CJNE R0, #06H, BUZZER_SO
+00A6 7AFD             71                     MOV R2, #0FDH
+00A8 7B91             72                     MOV R3, #091H
+00AA 22               73                     RET
+                      74     
+00AB                  75     BUZZER_SO:
+00AB B80505           76             CJNE R0, #05H, BUZZER_SO_
+00AE 7AFD             77                     MOV R2, #0FDH
+00B0 7BB4             78                     MOV R3, #0B4H
+00B2 22               79                     RET
+                      80     
+00B3                  81     BUZZER_SO_:
+00B3 B80405           82             CJNE R0, #04H, BUZZER_LA
+00B6 7AFD             83                     MOV R2, #0FDH
+00B8 7BD5             84                     MOV R3, #0D5H
+00BA 22               85                     RET
+                      86     
+00BB                  87     BUZZER_LA:
+00BB B80305           88             CJNE R0, #03H, BUZZER_LA_
+00BE 7AFD             89                     MOV R2, #0FDH
+00C0 7BF4             90                     MOV R3, #0F4H
+00C2 22               91                     RET
+                      92     
+00C3                  93     BUZZER_LA_:
+00C3 B80205           94             CJNE R0, #02H, BUZZER_SI
+00C6 7AFE             95                     MOV R2, #0FEH
+00C8 7B12             96                     MOV R3, #012H
+00CA 22               97                     RET
+                      98     
+00CB                  99     BUZZER_SI:
+00CB B80105          100             CJNE R0, #01H, DEFAULT
+00CE 7AFE            101                     MOV R2, #0FEH
+00D0 7B2E            102                     MOV R3, #02EH
+00D2 22              103                     RET
+                     104     
+00D3                 105     DEFAULT:
+00D3 780C            106             MOV R0, #0CH
+00D5 7A00            107             MOV R2, #00H
+00D7 7B00            108             MOV R3, #00H
+00D9 8098            109             JMP BUZZER_CHOOSE_FREQ
+                     110     
+00DB                 111     RESET_TIMER0:
+00DB C28C            112             CLR   TR0
+00DD 758C3C          113             MOV   TH0, #03CH
+00E0 758AB0          114             MOV   TL0, #0B0H
+00E3 B91408          115             CJNE  R1, #014H ,CONTINUE
+00E6 7900            116             MOV   R1, #00H
+00E8 18              117             DEC R0
+00E9 1173            118             ACALL BUZZER_CHOOSE_FREQ
+00EB D28C            119             SETB  TR0
+00ED 32              120             RETI
+                     121     
+00EE                 122     CONTINUE:
+A51 MACRO ASSEMBLER  LAB10_1_2                                                            11/25/2025 18:08:54 PAGE     3
+
+00EE 09              123             INC   R1
+00EF D28C            124             SETB  TR0
+00F1 32              125             RETI
+                     126     
+00F2                 127     RESET_TIMER1:
+00F2 C28E            128             CLR   TR1
+00F4 8A8D            129             MOV   TH1, R2
+00F6 8B8B            130             MOV   TL1, R3
+00F8 E580            131             MOV   A, P0
+00FA F4              132             CPL   A
+00FB F580            133             MOV   P0, A
+00FD D28E            134             SETB  TR1
+00FF 32              135             RETI
+                     136             END
+A51 MACRO ASSEMBLER  LAB10_1_2                                                            11/25/2025 18:08:54 PAGE     4
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+BUZZER_CHOOSE_FREQ  C ADDR   0073H   A   
+BUZZER_D0. . . . .  C ADDR   0073H   A   
+BUZZER_D0_ . . . .  C ADDR   007BH   A   
+BUZZER_FA. . . . .  C ADDR   009BH   A   
+BUZZER_FA_ . . . .  C ADDR   00A3H   A   
+BUZZER_LA. . . . .  C ADDR   00BBH   A   
+BUZZER_LA_ . . . .  C ADDR   00C3H   A   
+BUZZER_MI. . . . .  C ADDR   0093H   A   
+BUZZER_RE. . . . .  C ADDR   0083H   A   
+BUZZER_RE_ . . . .  C ADDR   008BH   A   
+BUZZER_SI. . . . .  C ADDR   00CBH   A   
+BUZZER_SO. . . . .  C ADDR   00ABH   A   
+BUZZER_SO_ . . . .  C ADDR   00B3H   A   
+CONTINUE . . . . .  C ADDR   00EEH   A   
+DEFAULT. . . . . .  C ADDR   00D3H   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INIT . . . . . . .  C ADDR   0050H   A   
+LOOP . . . . . . .  C ADDR   0071H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+RESET_TIMER0 . . .  C ADDR   00DBH   A   
+RESET_TIMER1 . . .  C ADDR   00F2H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

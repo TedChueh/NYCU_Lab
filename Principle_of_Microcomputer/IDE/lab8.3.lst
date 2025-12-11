@@ -1,0 +1,149 @@
+A51 MACRO ASSEMBLER  LAB8_3                                                               11/11/2025 18:42:01 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab8.3.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab08\lab8.3.asm SET(SMALL) DEBUG PRINT(.\lab8.3.lst) OBJECT(.\lab8.3.o
+                      bj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+  00B0                 1     LCD_EN EQU  P3.0
+  00B1                 2     LCD_RW EQU  P3.1
+  00B2                 3     LCD_RS EQU  P3.2
+  0080                 4     LCD_DATA EQU P0
+                       5             
+0000                   6             ORG 00H
+0000 0150              7             AJMP INIT
+0050                   8             ORG 50H
+                       9     
+                      10     
+0050                  11     INIT:
+0050 758901           12             MOV TMOD, #01H
+0053 C2B1             13             CLR LCD_RW
+0055 11B6             14             ACALL DELAY10MS
+                      15     
+0057 743B             16             MOV A,#00111011B
+0059 1195             17             ACALL WRIR
+                      18     
+005B 740E             19             MOV A,#00001110B
+005D 1195             20             ACALL WRIR
+                      21     
+005F 7401             22             MOV A,#00000001B
+0061 1195             23             ACALL WRIR
+                      24     
+0063 7480             25             MOV A,#10000000B
+0065 1195             26             ACALL WRIR
+                      27     
+0067                  28     LOOP:
+0067 116B             29             ACALL DOTCIRCLING
+0069 80FC             30             JMP LOOP
+                      31     
+006B                  32     DOTCIRCLING:
+006B                  33     DOTCIRCLING1_INIT:
+006B 7880             34             MOV R0, #080H
+006D 7910             35             MOV R1, #010H
+006F                  36     DOTCIRCLING1_MAIN:
+006F 1190             37             ACALL LCM_RESET
+0071 E8               38             MOV A, R0
+0072 1195             39             ACALL WRIR
+0074 742E             40             MOV A, #02EH
+0076 11A2             41             ACALL WRDR
+0078 11AF             42             ACALL DELAY200MS
+007A 08               43             INC R0
+007B D9F2             44             DJNZ R1, DOTCIRCLING1_MAIN
+007D                  45     DOTCIRCLING2_INIT:
+007D 78CF             46             MOV R0, #0CFH
+007F 7910             47             MOV R1, #010H
+0081                  48     DOTCIRCLING2_MAIN:
+0081 1190             49             ACALL LCM_RESET
+0083 E8               50             MOV A, R0
+0084 1195             51             ACALL WRIR
+0086 742E             52             MOV A, #02EH
+0088 11A2             53             ACALL WRDR
+008A 11AF             54             ACALL DELAY200MS
+008C 18               55             DEC R0
+008D D9F2             56             DJNZ R1, DOTCIRCLING2_MAIN
+008F 22               57             RET
+A51 MACRO ASSEMBLER  LAB8_3                                                               11/11/2025 18:42:01 PAGE     2
+
+                      58     
+0090                  59     LCM_RESET:
+0090 7401             60             MOV A,#00000001B
+0092 1195             61             ACALL WRIR
+0094 22               62             RET
+                      63     
+0095                  64     WRIR:
+0095 F580             65             MOV LCD_DATA, A
+0097 C2B2             66             CLR LCD_RS
+0099 D2B0             67             SETB LCD_EN
+009B 11B6             68             ACALL DELAY10MS
+009D C2B0             69             CLR LCD_EN
+009F 11B6             70             ACALL DELAY10MS
+00A1 22               71             RET
+                      72     
+00A2                  73     WRDR:
+00A2 F580             74             MOV LCD_DATA, A
+00A4 D2B2             75             SETB LCD_RS
+00A6 D2B0             76             SETB LCD_EN
+00A8 11B6             77             ACALL DELAY10MS
+00AA C2B0             78             CLR LCD_EN
+00AC 11B6             79             ACALL DELAY10MS
+00AE 22               80             RET
+                      81     
+00AF                  82     DELAY200MS:
+00AF                  83     DELAY200MS_INIT:
+00AF 7F14             84             MOV R7, #20
+00B1                  85     DELAY200MS_MAIN:
+00B1 11B6             86             ACALL DELAY10MS
+00B3 DFFC             87             DJNZ R7, DELAY200MS_MAIN
+00B5 22               88             RET
+                      89     
+00B6                  90     DELAY10MS:
+00B6 758CD8           91             MOV TH0, #0D8H   
+00B9 758AF0           92             MOV TL0, #0F0H   
+00BC D28C             93             SETB TR0        
+00BE 308DFD           94             JNB TF0, $
+00C1 C28C             95             CLR TR0
+00C3 C28D             96             CLR TF0
+00C5 22               97             RET
+                      98             END
+A51 MACRO ASSEMBLER  LAB8_3                                                               11/11/2025 18:42:01 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY10MS. . . . .  C ADDR   00B6H   A   
+DELAY200MS . . . .  C ADDR   00AFH   A   
+DELAY200MS_INIT. .  C ADDR   00AFH   A   
+DELAY200MS_MAIN. .  C ADDR   00B1H   A   
+DOTCIRCLING. . . .  C ADDR   006BH   A   
+DOTCIRCLING1_INIT.  C ADDR   006BH   A   
+DOTCIRCLING1_MAIN.  C ADDR   006FH   A   
+DOTCIRCLING2_INIT.  C ADDR   007DH   A   
+DOTCIRCLING2_MAIN.  C ADDR   0081H   A   
+INIT . . . . . . .  C ADDR   0050H   A   
+LCD_DATA . . . . .  D ADDR   0080H   A   
+LCD_EN . . . . . .  B ADDR   00B0H.0 A   
+LCD_RS . . . . . .  B ADDR   00B0H.2 A   
+LCD_RW . . . . . .  B ADDR   00B0H.1 A   
+LCM_RESET. . . . .  C ADDR   0090H   A   
+LOOP . . . . . . .  C ADDR   0067H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+TF0. . . . . . . .  B ADDR   0088H.5 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+WRDR . . . . . . .  C ADDR   00A2H   A   
+WRIR . . . . . . .  C ADDR   0095H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

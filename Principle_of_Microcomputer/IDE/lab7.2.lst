@@ -1,0 +1,526 @@
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\lab7.2.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\lab07\lab7.2.asm SET(SMALL) DEBUG PRINT(.\lab7.2.lst) OBJECT(.\lab7.2.o
+                      bj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 00H
+0000 0161              2             AJMP INIT
+0050                   3             ORG 50H
+                       4     
+0050                   5     KEYPAD:
+0050 00                6             DB 00H
+0051 04                7             DB 04H  
+0052 08                8             DB 08H 
+0053 0C                9             DB 0CH  
+                      10     
+0054 01               11             DB 01H  
+0055 05               12             DB 05H  
+0056 09               13             DB 09H   
+0057 0D               14             DB 0DH
+                      15     
+0058 02               16             DB 02H  
+0059 06               17             DB 06H  
+005A 0A               18             DB 0AH
+005B 0E               19             DB 0EH
+                      20     
+005C 03               21             DB 03H   
+005D 07               22             DB 07H  
+005E 0B               23             DB 0BH  
+005F 0F               24             DB 0FH
+                      25     
+0060 10               26             DB 010H ; No key pressed
+                      27     
+0061                  28     INIT:
+0061 758901           29         MOV TMOD, #01H 
+0064 7594FF           30             MOV 94H, #0FFH
+0067 7810             31             MOV R0, #010H ; Col Detection
+0069 7900             32             MOV R1, #00H  ; Row Detection
+                      33     
+006B 7A00             34             MOV R2, #00H ;Temp For Row Detection
+006D 7B00             35             MOV R3, #00H ; Motor Target Degree(Null)
+006F 7C00             36             MOV R4, #00H ; For Loop Variable
+0071 7D04             37             MOV R5, #04H ; Motor Number of Shift to achieve 1 Turn
+                      38     
+0073 7E00             39             MOV R6, #00H ; Motor Ouput For 1-2 Phase Shifting
+0075 7F00             40             MOV R7, #00H ; Motor Ouput For 1-2 Phase Shifting
+                      41     
+0077 7580FF           42             MOV P0, #0FFH ; Keypad Input
+007A 759011           43         MOV P1, #00010001B  ; Motor Output
+                      44     
+007D                  45     LOOP:
+007D 1183             46             ACALL DETECT
+007F 11F1             47             ACALL EXECUTE
+0081 80FA             48             JMP LOOP
+                      49     
+                      50     ;KEYPAD DETECT CONTROL
+0083                  51     DETECT:
+0083 7810             52             MOV R0, #010H
+0085 7900             53             MOV R1, #00H
+                      54     
+0087                  55     DETECTCOL0:
+0087 75807F           56         MOV P0, #07FH
+008A 5106             57             ACALL DELAY10MS
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     2
+
+008C E580             58             MOV A, P0
+008E 540F             59         ANL A, #0FH
+0090 FA               60             MOV R2, A
+0091 C3               61             CLR C
+0092 940F             62             SUBB A, #0FH
+0094 6005             63         JZ DETECTCOL1
+0096 7800             64             MOV R0, #00H
+0098 11D8             65             ACALL DETECTROW
+009A 22               66             RET
+                      67     
+009B                  68     DETECTCOL1:
+009B 7580BF           69             MOV P0, #0BFH
+009E 5106             70             ACALL DELAY10MS
+00A0 E580             71             MOV A, P0
+00A2 540F             72             ANL A, #0FH
+00A4 FA               73             MOV R2, A
+00A5 C3               74             CLR C
+00A6 940F             75             SUBB A, #0FH
+00A8 6005             76             JZ DETECTCOL2
+00AA 7804             77             MOV R0, #04H
+00AC 11D8             78             ACALL DETECTROW
+00AE 22               79             RET
+                      80     
+00AF                  81     DETECTCOL2:
+00AF 7580DF           82             MOV P0, #0DFH
+00B2 5106             83             ACALL DELAY10MS
+00B4 E580             84             MOV A, P0
+00B6 540F             85             ANL A, #0FH
+00B8 FA               86             MOV R2, A
+00B9 C3               87             CLR C
+00BA 940F             88             SUBB A, #0FH
+00BC 6005             89             JZ DETECTCOL3   
+00BE 7808             90             MOV R0, #08H
+00C0 11D8             91             ACALL DETECTROW
+00C2 22               92             RET
+                      93     
+00C3                  94     DETECTCOL3:
+00C3 7580EF           95             MOV P0, #0EFH
+00C6 5106             96             ACALL DELAY10MS
+00C8 E580             97             MOV A, P0
+00CA 540F             98             ANL A, #0FH
+00CC FA               99             MOV R2, A
+00CD C3              100             CLR C
+00CE 940F            101             SUBB A, #0FH
+00D0 6005            102             JZ DEFAULT_NOPRESSED
+00D2 780C            103             MOV R0, #0CH
+00D4 11D8            104             ACALL DETECTROW
+00D6 22              105             RET
+                     106     
+00D7                 107     DEFAULT_NOPRESSED:
+00D7 22              108             RET
+                     109     
+00D8                 110     DETECTROW:
+00D8 BA0E03          111             CJNE R2, #0EH,  NOTPRESSEDROW0
+00DB 7900            112             MOV R1, #00H
+00DD 22              113             RET
+                     114     
+00DE                 115     NOTPRESSEDROW0:
+00DE BA0D03          116             CJNE R2, #0DH,  NOTPRESSEDROW1
+00E1 7901            117             MOV R1, #01H
+00E3 22              118             RET
+                     119     
+00E4                 120     NOTPRESSEDROW1:
+00E4 BA0B03          121             CJNE R2, #0BH,  NOTPRESSEDROW2
+00E7 7902            122             MOV R1, #02H
+00E9 22              123             RET
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     3
+
+                     124     
+00EA                 125     NOTPRESSEDROW2:
+00EA BA0703          126             CJNE R2, #07H,  DEFAULT
+00ED 7903            127             MOV R1, #03H
+00EF 22              128             RET
+                     129     
+00F0                 130     DEFAULT:
+00F0 22              131             RET
+                     132     
+                     133     ;BRANCH CONDITION CONTROL
+00F1                 134     EXECUTE:
+00F1                 135     EXECUTE_INIT:
+00F1 900050          136             MOV DPTR, #KEYPAD
+00F4 E8              137             MOV A, R0
+00F5 29              138             ADD A, R1
+00F6 93              139             MOVC A, @A+DPTR
+                     140     
+00F7                 141     EXECUTE_MAIN:
+00F7                 142     CW_PHASE1_DEG45:
+00F7 B40007          143             CJNE A, #00H, CW_PHASE2_DEG90
+00FA                 144     CW_PHASE1_DEG45MAIN:
+00FA 7B11            145             MOV R3, #011H
+00FC                 146     CW_PHASE1_DEG45LOOP:
+00FC 3198            147             ACALL MOTOR_CW_PHASE1_DEG1
+00FE DBFC            148             DJNZ R3, CW_PHASE1_DEG45LOOP
+0100 22              149             RET
+                     150     ;-----------------------------------
+0101                 151     CW_PHASE2_DEG90:
+0101 B40107          152             CJNE A, #01H, CW_PHASE1_2_DEG135
+0104                 153     CW_PHASE2_DEG90MAIN:
+0104 7B23            154             MOV R3, #023H
+0106                 155     CW_PHASE2_DEG90LOOP:
+0106 31B6            156             ACALL MOTOR_CW_PHASE2_DEG1
+0108 DBFC            157             DJNZ R3, CW_PHASE2_DEG90LOOP
+010A 22              158             RET
+                     159     ;-----------------------------------
+010B                 160     CW_PHASE1_2_DEG135:
+010B B40207          161             CJNE A, #02H, CW_PHASE1_DEG180
+010E                 162     CW_PHASE1_2_DEG135MAIN:
+010E 7B03            163             MOV  R3, #03H
+0110                 164     CW_PHASE1_2_DEG135LOOP:
+0110 31D4            165             ACALL MOTOR_CW_PHASE1_2_DEG45
+0112 DBFC            166             DJNZ R3, CW_PHASE1_2_DEG135LOOP
+0114 22              167             RET
+                     168     ;-----------------------------------
+0115                 169     CW_PHASE1_DEG180:
+0115 B40307          170             CJNE A, #03H, CW_PHASE1_DEG225
+0118 7C04            171             MOV R4, #04H
+011A                 172     CW_PHASE1_DEG180MAIN:   
+011A                 173     CW_PHASE1_DEG180LOOP:
+011A 11FA            174             ACALL CW_PHASE1_DEG45MAIN
+011C DCFC            175             DJNZ R4, CW_PHASE1_DEG180LOOP
+011E 22              176             RET
+                     177     ;-----------------------------------
+011F                 178     CW_PHASE1_DEG225:
+011F B40407          179             CJNE A, #04H, CW_PHASE2_DEG270
+0122 7C05            180             MOV R4, #05H
+0124                 181     CW_PHASE1_DEG225MAIN:   
+0124                 182     CW_PHASE1_DEG225LOOP:
+0124 11FA            183             ACALL CW_PHASE1_DEG45MAIN
+0126 DCFC            184             DJNZ R4, CW_PHASE1_DEG225LOOP
+0128 22              185             RET
+                     186     ;-----------------------------------
+0129                 187     CW_PHASE2_DEG270:
+0129 B40507          188             CJNE A, #05H, CW_PHASE1_2_DEG315
+012C                 189     CW_PHASE2_DEG270MAIN:
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     4
+
+012C 7B69            190             MOV R3, #069H
+012E                 191     CW_PHASE2_DEG270LOOP:
+012E 31B6            192             ACALL MOTOR_CW_PHASE2_DEG1
+0130 DBFC            193             DJNZ R3, CW_PHASE2_DEG270LOOP
+0132 22              194             RET
+                     195     ;-----------------------------------
+0133                 196     CW_PHASE1_2_DEG315:
+0133 B40607          197             CJNE A, #06H, CW_PHASE1_2_DEG360
+0136                 198     CW_PHASE1_2_DEG315MAIN:
+0136 7B07            199             MOV  R3, #07H
+0138                 200     CW_PHASE1_2_DEG315LOOP:
+0138 31D4            201             ACALL MOTOR_CW_PHASE1_2_DEG45
+013A DBFC            202             DJNZ R3, CW_PHASE1_2_DEG315LOOP
+013C 22              203             RET
+                     204     ;-----------------------------------
+013D                 205     CW_PHASE1_2_DEG360:
+013D B40707          206             CJNE A, #07H, CCW_PHASE1_DEG45
+0140                 207     CW_PHASE1_2_DEG360MAIN:
+0140 7B08            208             MOV  R3, #08H
+0142                 209     CW_PHASE1_2_DEG360LOOP:
+0142 31D4            210             ACALL MOTOR_CW_PHASE1_2_DEG45
+0144 DBFC            211             DJNZ R3, CW_PHASE1_2_DEG360LOOP
+0146 22              212             RET
+                     213     ;-----------------------------------
+0147                 214     CCW_PHASE1_DEG45:
+0147 B40807          215             CJNE A, #08H, CCW_PHASE2_DEG90
+014A                 216     CCW_PHASE1_DEG45MAIN:
+014A 7B11            217             MOV R3, #011H
+014C                 218     CCW_PHASE1_DEG45LOOP:
+014C 31A7            219             ACALL MOTOR_CCW_PHASE1_DEG1
+014E DBFC            220             DJNZ R3, CCW_PHASE1_DEG45LOOP
+0150 22              221             RET
+                     222     ;-----------------------------------
+0151                 223     CCW_PHASE2_DEG90:
+0151 B40907          224             CJNE A, #09H, CCW_PHASE1_2_DEG135
+0154                 225     CCW_PHASE2_DEG90MAIN:
+0154 7B23            226             MOV R3, #023H
+0156                 227     CCW_PHASE2_DEG90LOOP:
+0156 31C5            228             ACALL MOTOR_CCW_PHASE2_DEG1
+0158 DBFC            229             DJNZ R3, CCW_PHASE2_DEG90LOOP
+015A 22              230             RET
+                     231     ;-----------------------------------
+015B                 232     CCW_PHASE1_2_DEG135:
+015B B40A07          233             CJNE A, #0AH, CCW_PHASE1_DEG180
+015E                 234     CCW_PHASE1_2_DEG135MAIN:
+015E 7B03            235             MOV  R3, #03H
+0160                 236     CCW_PHASE1_2_DEG135LOOP:
+0160 31ED            237             ACALL MOTOR_CCW_PHASE1_2_DEG45
+0162 DBFC            238             DJNZ R3, CCW_PHASE1_2_DEG135LOOP
+0164 22              239             RET
+                     240     ;-----------------------------------
+0165                 241     CCW_PHASE1_DEG180:
+0165 B40B07          242             CJNE A, #0BH, CCW_PHASE1_DEG225
+0168 7C04            243             MOV R4, #04H
+016A                 244     CCW_PHASE1_DEG180MAIN:  
+016A                 245     CCW_PHASE1_DEG180LOOP:
+016A 314A            246             ACALL CCW_PHASE1_DEG45MAIN
+016C DCFC            247             DJNZ R4, CCW_PHASE1_DEG180LOOP
+016E 22              248             RET
+                     249     ;-----------------------------------
+016F                 250     CCW_PHASE1_DEG225:
+016F B40C07          251             CJNE A, #0CH, CCW_PHASE2_DEG270
+0172 7C05            252             MOV R4, #05H
+0174                 253     CCW_PHASE1_DEG225MAIN:  
+0174                 254     CCW_PHASE1_DEG225LOOP:
+0174 314A            255             ACALL CCW_PHASE1_DEG45MAIN
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     5
+
+0176 DCFC            256             DJNZ R4, CCW_PHASE1_DEG225LOOP
+0178 22              257             RET
+                     258     ;-----------------------------------
+0179                 259     CCW_PHASE2_DEG270:
+0179 B40D07          260             CJNE A, #0DH, CCW_PHASE1_2_DEG315
+017C                 261     CCW_PHASE2_DEG270MAIN:
+017C 7B69            262             MOV R3, #069H
+017E                 263     CCW_PHASE2_DEG270LOOP:
+017E 31C5            264             ACALL MOTOR_CCW_PHASE2_DEG1
+0180 DBFC            265             DJNZ R3, CCW_PHASE2_DEG270LOOP
+0182 22              266             RET
+                     267     ;-----------------------------------
+0183                 268     CCW_PHASE1_2_DEG315:
+0183 B40E07          269             CJNE A, #0EH, CCW_PHASE1_2_DEG360
+0186                 270     CCW_PHASE1_2_DEG315MAIN:
+0186 7B07            271             MOV  R3, #07H
+0188                 272     CCW_PHASE1_2_DEG315LOOP:
+0188 31ED            273             ACALL MOTOR_CCW_PHASE1_2_DEG45
+018A DBFC            274             DJNZ R3, CCW_PHASE1_2_DEG315LOOP
+018C 22              275             RET
+                     276     ;-----------------------------------
+018D                 277     CCW_PHASE1_2_DEG360:
+018D B40F07          278             CJNE A, #0FH, DEFAULT_NOMOVE
+0190                 279     CCW_PHASE1_2_DEG360MAIN:
+0190 7B08            280             MOV  R3, #08H
+0192                 281     CCW_PHASE1_2_DEG360LOOP:
+0192 31ED            282             ACALL MOTOR_CCW_PHASE1_2_DEG45
+0194 DBFC            283             DJNZ R3, CCW_PHASE1_2_DEG360LOOP
+0196 22              284             RET
+                     285     ;-----------------------------------
+0197                 286     DEFAULT_NOMOVE:
+0197 22              287             RET
+                     288     
+                     289     ;MOTOR CONTROL
+                     290     ;PHASE 1 CW
+0198                 291     MOTOR_CW_PHASE1_DEG1:
+0198                 292     MOTOR_CW_PHASE1_DEG1_INIT:
+0198 759011          293             MOV P1, #00010001B 
+019B 7D04            294             MOV R5, #04H
+019D                 295     MOTOR_CW_PHASE1_DEG1_MAIN:
+019D 5106            296             ACALL DELAY10MS
+019F E590            297             MOV A, P1
+01A1 03              298             RR A
+01A2 F590            299             MOV P1, A
+01A4 DDF7            300             DJNZ R5, MOTOR_CW_PHASE1_DEG1_MAIN
+01A6 22              301             RET
+                     302     ;PHASE 1 CCW
+01A7                 303     MOTOR_CCW_PHASE1_DEG1:
+01A7                 304     MOTOR_CCW_PHASE1_DEG1_INIT:
+01A7 759011          305             MOV P1, #00010001B 
+01AA 7D04            306             MOV R5, #04H
+01AC                 307     MOTOR_CCW_PHASE1_DEG1_MAIN:
+01AC 5106            308             ACALL DELAY10MS
+01AE E590            309             MOV A, P1
+01B0 23              310             RL A
+01B1 F590            311             MOV P1, A
+01B3 DDF7            312             DJNZ R5, MOTOR_CCW_PHASE1_DEG1_MAIN
+01B5 22              313             RET
+                     314     
+                     315     ;PHASE 2 CW
+01B6                 316     MOTOR_CW_PHASE2_DEG1:
+01B6                 317     MOTOR_CW_PHASE2_DEG1_INIT:
+01B6 759033          318             MOV P1, #00110011B
+01B9 7D04            319             MOV R5, #04H
+01BB                 320     MOTOR_CW_PHASE2_DEG1_MAIN:
+01BB 5106            321             ACALL DELAY10MS
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     6
+
+01BD E590            322             MOV A, P1
+01BF 03              323             RR A
+01C0 F590            324             MOV P1, A
+01C2 DDF7            325             DJNZ R5, MOTOR_CW_PHASE2_DEG1_MAIN
+01C4 22              326             RET
+                     327     ;PHASE 2 CCW
+01C5                 328     MOTOR_CCW_PHASE2_DEG1:
+01C5                 329     MOTOR_CCW_PHASE2_DEG1_INIT:
+01C5 759033          330             MOV P1, #00110011B
+01C8 7D04            331             MOV R5, #04H
+01CA                 332     MOTOR_CCW_PHASE2_DEG1_MAIN:
+01CA 5106            333             ACALL DELAY10MS
+01CC E590            334             MOV A, P1
+01CE 23              335             RL A
+01CF F590            336             MOV P1, A
+01D1 DDF7            337             DJNZ R5, MOTOR_CCW_PHASE2_DEG1_MAIN
+01D3 22              338             RET
+                     339     
+                     340     ;PHASE 1-2 CW
+01D4                 341     MOTOR_CW_PHASE1_2_DEG45:
+01D4                 342     MOTOR_CW_PHASE1_2_DEG45_INIT:
+01D4 7E11            343             MOV R6, #00010001B
+01D6 7F11            344             MOV R7, #00010001B
+01D8 7D44            345             MOV R5, #044H
+01DA                 346     MOTOR_CW_PHASE1_2_DEG45_MAIN:
+01DA 5106            347             ACALL DELAY10MS
+01DC EE              348             MOV A, R6
+01DD 03              349             RR A
+01DE FE              350             MOV R6, A
+01DF 4F              351             ORL A, R7
+01E0 F590            352             MOV P1, A
+                     353             
+01E2 5106            354             ACALL DELAY10MS
+01E4 EF              355             MOV A, R7
+01E5 03              356             RR A
+01E6 FF              357             MOV R7, A
+01E7 4E              358             ORL A, R6
+01E8 F590            359             MOV P1, A
+                     360     
+01EA DDEE            361             DJNZ R5, MOTOR_CW_PHASE1_2_DEG45_MAIN
+01EC 22              362             RET
+                     363     ;PHASE 1-2 CCW
+01ED                 364     MOTOR_CCW_PHASE1_2_DEG45:
+01ED                 365     MOTOR_CCW_PHASE1_2_DEG45_INIT:
+01ED 7E11            366             MOV R6, #00010001B
+01EF 7F11            367             MOV R7, #00010001B
+01F1 7D44            368             MOV R5, #044H
+01F3                 369     MOTOR_CCW_PHASE1_2_DEG45_MAIN:
+01F3 5106            370             ACALL DELAY10MS
+01F5 EE              371             MOV A, R6
+01F6 23              372             RL A
+01F7 FE              373             MOV R6, A
+01F8 4F              374             ORL A, R7
+01F9 F590            375             MOV P1, A
+                     376             
+01FB 5106            377             ACALL DELAY10MS
+01FD EF              378             MOV A, R7
+01FE 23              379             RL A
+01FF FF              380             MOV R7, A
+0200 4E              381             ORL A, R6
+0201 F590            382             MOV P1, A
+                     383     
+0203 DDEE            384             DJNZ R5, MOTOR_CCW_PHASE1_2_DEG45_MAIN
+0205 22              385             RET
+                     386     
+                     387     ;DELAY CONTROL
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     7
+
+0206                 388     DELAY10MS:
+0206 758CD8          389             MOV TH0, #0D8H   
+0209 758AF0          390             MOV TL0, #0F0H   
+020C D28C            391             SETB TR0        
+020E 308DFD          392             JNB TF0, $
+0211 C28C            393             CLR TR0
+0213 C28D            394             CLR TF0
+0215 22              395             RET
+                     396             END
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     8
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E                        T Y P E  V A L U E   ATTRIBUTES
+
+CCW_PHASE1_2_DEG135 . . . . .  C ADDR   015BH   A   
+CCW_PHASE1_2_DEG135LOOP . . .  C ADDR   0160H   A   
+CCW_PHASE1_2_DEG135MAIN . . .  C ADDR   015EH   A   
+CCW_PHASE1_2_DEG315 . . . . .  C ADDR   0183H   A   
+CCW_PHASE1_2_DEG315LOOP . . .  C ADDR   0188H   A   
+CCW_PHASE1_2_DEG315MAIN . . .  C ADDR   0186H   A   
+CCW_PHASE1_2_DEG360 . . . . .  C ADDR   018DH   A   
+CCW_PHASE1_2_DEG360LOOP . . .  C ADDR   0192H   A   
+CCW_PHASE1_2_DEG360MAIN . . .  C ADDR   0190H   A   
+CCW_PHASE1_DEG180 . . . . . .  C ADDR   0165H   A   
+CCW_PHASE1_DEG180LOOP . . . .  C ADDR   016AH   A   
+CCW_PHASE1_DEG180MAIN . . . .  C ADDR   016AH   A   
+CCW_PHASE1_DEG225 . . . . . .  C ADDR   016FH   A   
+CCW_PHASE1_DEG225LOOP . . . .  C ADDR   0174H   A   
+CCW_PHASE1_DEG225MAIN . . . .  C ADDR   0174H   A   
+CCW_PHASE1_DEG45. . . . . . .  C ADDR   0147H   A   
+CCW_PHASE1_DEG45LOOP. . . . .  C ADDR   014CH   A   
+CCW_PHASE1_DEG45MAIN. . . . .  C ADDR   014AH   A   
+CCW_PHASE2_DEG270 . . . . . .  C ADDR   0179H   A   
+CCW_PHASE2_DEG270LOOP . . . .  C ADDR   017EH   A   
+CCW_PHASE2_DEG270MAIN . . . .  C ADDR   017CH   A   
+CCW_PHASE2_DEG90. . . . . . .  C ADDR   0151H   A   
+CCW_PHASE2_DEG90LOOP. . . . .  C ADDR   0156H   A   
+CCW_PHASE2_DEG90MAIN. . . . .  C ADDR   0154H   A   
+CW_PHASE1_2_DEG135. . . . . .  C ADDR   010BH   A   
+CW_PHASE1_2_DEG135LOOP. . . .  C ADDR   0110H   A   
+CW_PHASE1_2_DEG135MAIN. . . .  C ADDR   010EH   A   
+CW_PHASE1_2_DEG315. . . . . .  C ADDR   0133H   A   
+CW_PHASE1_2_DEG315LOOP. . . .  C ADDR   0138H   A   
+CW_PHASE1_2_DEG315MAIN. . . .  C ADDR   0136H   A   
+CW_PHASE1_2_DEG360. . . . . .  C ADDR   013DH   A   
+CW_PHASE1_2_DEG360LOOP. . . .  C ADDR   0142H   A   
+CW_PHASE1_2_DEG360MAIN. . . .  C ADDR   0140H   A   
+CW_PHASE1_DEG180. . . . . . .  C ADDR   0115H   A   
+CW_PHASE1_DEG180LOOP. . . . .  C ADDR   011AH   A   
+CW_PHASE1_DEG180MAIN. . . . .  C ADDR   011AH   A   
+CW_PHASE1_DEG225. . . . . . .  C ADDR   011FH   A   
+CW_PHASE1_DEG225LOOP. . . . .  C ADDR   0124H   A   
+CW_PHASE1_DEG225MAIN. . . . .  C ADDR   0124H   A   
+CW_PHASE1_DEG45 . . . . . . .  C ADDR   00F7H   A   
+CW_PHASE1_DEG45LOOP . . . . .  C ADDR   00FCH   A   
+CW_PHASE1_DEG45MAIN . . . . .  C ADDR   00FAH   A   
+CW_PHASE2_DEG270. . . . . . .  C ADDR   0129H   A   
+CW_PHASE2_DEG270LOOP. . . . .  C ADDR   012EH   A   
+CW_PHASE2_DEG270MAIN. . . . .  C ADDR   012CH   A   
+CW_PHASE2_DEG90 . . . . . . .  C ADDR   0101H   A   
+CW_PHASE2_DEG90LOOP . . . . .  C ADDR   0106H   A   
+CW_PHASE2_DEG90MAIN . . . . .  C ADDR   0104H   A   
+DEFAULT . . . . . . . . . . .  C ADDR   00F0H   A   
+DEFAULT_NOMOVE. . . . . . . .  C ADDR   0197H   A   
+DEFAULT_NOPRESSED . . . . . .  C ADDR   00D7H   A   
+DELAY10MS . . . . . . . . . .  C ADDR   0206H   A   
+DETECT. . . . . . . . . . . .  C ADDR   0083H   A   
+DETECTCOL0. . . . . . . . . .  C ADDR   0087H   A   
+DETECTCOL1. . . . . . . . . .  C ADDR   009BH   A   
+DETECTCOL2. . . . . . . . . .  C ADDR   00AFH   A   
+DETECTCOL3. . . . . . . . . .  C ADDR   00C3H   A   
+DETECTROW . . . . . . . . . .  C ADDR   00D8H   A   
+EXECUTE . . . . . . . . . . .  C ADDR   00F1H   A   
+EXECUTE_INIT. . . . . . . . .  C ADDR   00F1H   A   
+A51 MACRO ASSEMBLER  LAB7_2                                                               10/21/2025 20:55:27 PAGE     9
+
+EXECUTE_MAIN. . . . . . . . .  C ADDR   00F7H   A   
+INIT. . . . . . . . . . . . .  C ADDR   0061H   A   
+KEYPAD. . . . . . . . . . . .  C ADDR   0050H   A   
+LOOP. . . . . . . . . . . . .  C ADDR   007DH   A   
+MOTOR_CCW_PHASE1_2_DEG45. . .  C ADDR   01EDH   A   
+MOTOR_CCW_PHASE1_2_DEG45_INIT  C ADDR   01EDH   A   
+MOTOR_CCW_PHASE1_2_DEG45_MAIN  C ADDR   01F3H   A   
+MOTOR_CCW_PHASE1_DEG1 . . . .  C ADDR   01A7H   A   
+MOTOR_CCW_PHASE1_DEG1_INIT. .  C ADDR   01A7H   A   
+MOTOR_CCW_PHASE1_DEG1_MAIN. .  C ADDR   01ACH   A   
+MOTOR_CCW_PHASE2_DEG1 . . . .  C ADDR   01C5H   A   
+MOTOR_CCW_PHASE2_DEG1_INIT. .  C ADDR   01C5H   A   
+MOTOR_CCW_PHASE2_DEG1_MAIN. .  C ADDR   01CAH   A   
+MOTOR_CW_PHASE1_2_DEG45 . . .  C ADDR   01D4H   A   
+MOTOR_CW_PHASE1_2_DEG45_INIT.  C ADDR   01D4H   A   
+MOTOR_CW_PHASE1_2_DEG45_MAIN.  C ADDR   01DAH   A   
+MOTOR_CW_PHASE1_DEG1. . . . .  C ADDR   0198H   A   
+MOTOR_CW_PHASE1_DEG1_INIT . .  C ADDR   0198H   A   
+MOTOR_CW_PHASE1_DEG1_MAIN . .  C ADDR   019DH   A   
+MOTOR_CW_PHASE2_DEG1. . . . .  C ADDR   01B6H   A   
+MOTOR_CW_PHASE2_DEG1_INIT . .  C ADDR   01B6H   A   
+MOTOR_CW_PHASE2_DEG1_MAIN . .  C ADDR   01BBH   A   
+NOTPRESSEDROW0. . . . . . . .  C ADDR   00DEH   A   
+NOTPRESSEDROW1. . . . . . . .  C ADDR   00E4H   A   
+NOTPRESSEDROW2. . . . . . . .  C ADDR   00EAH   A   
+P0. . . . . . . . . . . . . .  D ADDR   0080H   A   
+P1. . . . . . . . . . . . . .  D ADDR   0090H   A   
+TF0 . . . . . . . . . . . . .  B ADDR   0088H.5 A   
+TH0 . . . . . . . . . . . . .  D ADDR   008CH   A   
+TL0 . . . . . . . . . . . . .  D ADDR   008AH   A   
+TMOD. . . . . . . . . . . . .  D ADDR   0089H   A   
+TR0 . . . . . . . . . . . . .  B ADDR   0088H.4 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

@@ -1,0 +1,14 @@
+<html>
+<body>
+<pre>
+<h1>µVision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Users\a0981\Documents\NYCU\Codes\Assembly\IDE_lab09\lab6.uv2
+Project File Date:  11/18/2025
+
+<h2>Output:</h2>
+Build target 'Target 1'
+linking...
+Program Size: data=8.0 xdata=0 code=302
+creating hex file from "lab1.1"...
+"lab1.1" - 0 Error(s), 0 Warning(s).

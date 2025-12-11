@@ -1,0 +1,192 @@
+A51 MACRO ASSEMBLER  13                                                                   12/09/2025 18:45:00 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\13.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\..\..\..\..\Downloads\Lab 12\Lab 12\sample code\13.asm SET(SMALL) DEBUG
+                       PRINT(.\13.lst) OBJECT(.\13.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1             ORG 0000H
+0000 804E              2             JMP MAIN
+0023                   3             ORG 0023H
+0023 01BB              4             JMP SERIAL
+0050                   5             ORG 0050H
+0050                   6     MAIN:
+                       7     ;PORT DEFINE
+  REG                  8     DELAY   EQU R0
+  REG                  9     DELAY1  EQU R1
+  REG                 10     ONE EQU R2
+  REG                 11     TEN EQU R3
+  REG                 12     HUN EQU R4
+  REG                 13     THO EQU R5
+  REG                 14     NUM EQU R6
+                      15     
+                      16     ;TIMER DEFINE BUAD 9600 DEFINE 
+0050 758920           17     MOV TMOD,#20H;TIMER1,MODE2
+0053 758DF3           18     MOV TH1,#0F3H
+0056 758BF3           19     MOV TL1,#0F3H
+0059 D28E             20     SETB TR1
+                      21     ;SERIAL RECEIVE MODE
+005B 438700           22     ORL PCON,#00000000B ;SETTING PCON.7 SMOD 1 BAUD RATE =FORCS/32 TI
+005E C298             23     CLR RI
+0060 C299             24     CLR TI
+0062 D2BC             25     SETB PS
+0064 C29D             26     CLR SM2
+0066 D29E             27     SETB SM1
+0068 C29F             28     CLR SM0
+006A D29C             29     SETB REN
+                      30     ;INTERRUPT DEFINE
+006C D2AC             31     SETB ES
+006E D2AF             32     SETB EA
+                      33     ;ORIGIN
+0070 9000DF           34     MOV DPTR,#TABLE
+0073 7A00             35     MOV ONE,#0
+0075 7B00             36     MOV TEN,#0
+0077 7C00             37     MOV HUN,#0
+0079 7D00             38     MOV THO,#0
+007B 7E00             39     MOV NUM,#0
+                      40     
+007D                  41     SHOW:
+007D 7912             42     MOV DELAY1,#012H
+007F                  43     SH1:
+007F 78FF             44     MOV DELAY,#0FFH
+0081 EA               45     MOV A,ONE
+0082 D8FE             46     DJNZ DELAY,$
+0084 93               47     MOVC A,@A+DPTR
+0085 75A00E           48     MOV P2,#00001110B
+0088 F580             49     MOV P0,A
+008A D9F3             50     DJNZ DELAY1,SH1
+008C 7912             51     MOV DELAY1,#012H
+008E                  52     SH2:
+008E 78FF             53     MOV DELAY,#0FFH
+0090 EB               54     MOV A,TEN
+0091 D8FE             55     DJNZ DELAY,$
+0093 93               56     MOVC A,@A+DPTR
+0094 75A00D           57     MOV P2,#00001101B
+A51 MACRO ASSEMBLER  13                                                                   12/09/2025 18:45:00 PAGE     2
+
+0097 F580             58     MOV P0,A
+0099 D9F3             59     DJNZ DELAY1,SH2
+009B 7912             60     MOV DELAY1,#012H
+009D                  61     SH3:
+009D 78FF             62     MOV DELAY,#0FFH
+009F EC               63     MOV A,HUN
+00A0 D8FE             64     DJNZ DELAY,$
+00A2 93               65     MOVC A,@A+DPTR
+00A3 75A00B           66     MOV P2,#00001011B
+00A6 F580             67     MOV P0,A
+00A8 D9F3             68     DJNZ DELAY1,SH3
+00AA 7912             69     MOV DELAY1,#012H
+00AC                  70     SH4:
+00AC 78FF             71     MOV DELAY,#0FFH
+00AE ED               72     MOV A,THO
+00AF D8FE             73     DJNZ DELAY,$
+00B1 93               74     MOVC A,@A+DPTR
+00B2 75A007           75     MOV P2,#00000111B
+00B5 F580             76     MOV P0,A
+00B7 D9F3             77     DJNZ DELAY1,SH4
+00B9 80C2             78     JMP SHOW
+                      79     
+00BB                  80     SERIAL:
+00BB C298             81     CLR RI
+00BD E599             82     MOV A,SBUF
+00BF FE               83     MOV NUM,A
+00C0 11C3             84     CALL READ_DATA
+                      85     ;MOV A,#0
+00C2 32               86     RETI
+                      87     
+00C3                  88     READ_DATA:
+00C3 EE               89     MOV A,NUM
+00C4 54F0             90     ANL A,#0F0H
+00C6 B44002           91     CJNE A,#40H,RECHECK
+00C9 8003             92     JMP CHANGE
+00CB                  93     RECHECK:
+00CB B45004           94     CJNE A,#50H,COMPUTE
+00CE                  95     CHANGE:
+00CE EE               96     MOV A,NUM
+00CF 2420             97     ADD A,#20H
+00D1 FE               98     MOV NUM,A
+00D2                  99     COMPUTE:
+00D2 EE              100     MOV A,NUM
+00D3 540F            101     ANL A,#00FH
+00D5 FA              102     MOV ONE,A
+00D6 EE              103     MOV A,NUM
+00D7 54F0            104     ANL A,#0F0H
+00D9 03              105     RR A
+00DA 03              106     RR A
+00DB 03              107     RR A
+00DC 03              108     RR A
+00DD FB              109     MOV TEN,A
+00DE 22              110     RET
+00DF                 111     TABLE:
+00DF C0              112             DB      00C0H ;0
+00E0 F9              113             DB      00F9H ;1
+00E1 A4              114             DB      00A4H ;2
+00E2 B0              115             DB      00B0H ;3
+00E3 99              116             DB      0099H ;4
+00E4 92              117             DB      0092H ;5
+00E5 82              118             DB      0082H ;6
+00E6 F8              119             DB      00F8H ;7
+00E7 80              120             DB      0080H ;8
+00E8 90              121             DB      0090H ;9
+00E9 88              122             DB  0088H ;A
+00EA 83              123             DB  0083H
+A51 MACRO ASSEMBLER  13                                                                   12/09/2025 18:45:00 PAGE     3
+
+00EB C6              124             DB  00C6H ;C
+00EC A1              125             DB  00A1H
+00ED 86              126             DB  0086H
+00EE 8E              127             DB  008EH
+                     128             END
+A51 MACRO ASSEMBLER  13                                                                   12/09/2025 18:45:00 PAGE     4
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+CHANGE . . . . . .  C ADDR   00CEH   A   
+COMPUTE. . . . . .  C ADDR   00D2H   A   
+DELAY. . . . . . .    REG    R0          
+DELAY1 . . . . . .    REG    R1          
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+ES . . . . . . . .  B ADDR   00A8H.4 A   
+HUN. . . . . . . .    REG    R4          
+MAIN . . . . . . .  C ADDR   0050H   A   
+NUM. . . . . . . .    REG    R6          
+ONE. . . . . . . .    REG    R2          
+P0 . . . . . . . .  D ADDR   0080H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+PCON . . . . . . .  D ADDR   0087H   A   
+PS . . . . . . . .  B ADDR   00B8H.4 A   
+READ_DATA. . . . .  C ADDR   00C3H   A   
+RECHECK. . . . . .  C ADDR   00CBH   A   
+REN. . . . . . . .  B ADDR   0098H.4 A   
+RI . . . . . . . .  B ADDR   0098H.0 A   
+SBUF . . . . . . .  D ADDR   0099H   A   
+SERIAL . . . . . .  C ADDR   00BBH   A   
+SH1. . . . . . . .  C ADDR   007FH   A   
+SH2. . . . . . . .  C ADDR   008EH   A   
+SH3. . . . . . . .  C ADDR   009DH   A   
+SH4. . . . . . . .  C ADDR   00ACH   A   
+SHOW . . . . . . .  C ADDR   007DH   A   
+SM0. . . . . . . .  B ADDR   0098H.7 A   
+SM1. . . . . . . .  B ADDR   0098H.6 A   
+SM2. . . . . . . .  B ADDR   0098H.5 A   
+TABLE. . . . . . .  C ADDR   00DFH   A   
+TEN. . . . . . . .    REG    R3          
+TH1. . . . . . . .  D ADDR   008DH   A   
+THO. . . . . . . .    REG    R5          
+TI . . . . . . . .  B ADDR   0098H.1 A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
