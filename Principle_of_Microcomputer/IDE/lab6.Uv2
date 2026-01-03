@@ -5,7 +5,7 @@ Target (Target 1), 0x0000 // Tools: 'MCS-51'
 
 Group (Source Group 1)
 
-File 1,2,<..\lab12\lab12.1.asm><lab12.1.asm>
+File 1,2,<..\Final_Project\Final_Proj.asm><Final_Proj.asm>
 
 
 Options 1,0,0  // Target 'Target 1'

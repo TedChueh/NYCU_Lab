@@ -1,0 +1,380 @@
+A51 MACRO ASSEMBLER  FINAL_PROJ                                                           12/26/2025 01:26:05 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.01
+OBJECT MODULE PLACED IN .\Final_Proj.obj
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE ..\Final_Project\Final_Proj.asm SET(SMALL) DEBUG PRINT(.\Final_Proj.lst) O
+                      BJECT(.\Final_Proj.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;-----------------------------------------
+                       2     ; 8051 Ultrasonic Project - Final Optimized & Compilable
+                       3     ;-----------------------------------------
+                       4     
+                       5     ; Ports & Pins
+  00B7                 6     ULTRASONIC_TRIG_PORT       EQU P3.7
+  00B6                 7     ULTRASONIC_TIMEBASE_PORT   EQU P3.6
+  00A0                 8     SEG_DATA_PORT              EQU P2
+  0080                 9     SEG_SHIFT_PORT             EQU P0
+  0090                10     LED_PORT                   EQU P1
+  00B0                11     BUZZER_PORT                EQU P3.0
+  00B1                12     BUZZER_FLAG                EQU P3.1
+  0030                13     BUZZER_COUNT_ADDR          EQU 30H   ; Internal RAM for buzzer counter
+                      14     
+                      15     ;-----------------------------------------
+0000                  16     ORG 00H
+0000 015A             17     AJMP INIT
+                      18     
+000B                  19     ORG 0BH
+000B 2100             20     AJMP TIMER0_ISR
+                      21     
+0013                  22     ORG 013H
+0013 214B             23     AJMP LOAD_DISTANCE
+                      24     
+0050                  25     ORG 50H
+                      26     ; 7-segment data table
+0050                  27     SEG_DATA:
+0050 039F250D         28         DB 03H, 09FH, 025H, 0DH, 099H, 049H, 041H, 01FH, 01H, 09H
+0054 9949411F                
+0058 0109                    
+                      29     
+                      30     ;-----------------------------------------
+005A                  31     INIT:
+005A 900050           32         MOV DPTR, #SEG_DATA
+005D 7589D1           33         MOV TMOD, #0D1H
+0060 C2B6             34         CLR ULTRASONIC_TIMEBASE_PORT
+0062 75A0FF           35         MOV SEG_DATA_PORT, #0FFH
+0065 758077           36         MOV SEG_SHIFT_PORT, #01110111B
+0068 7590FF           37         MOV LED_PORT, #0FFH
+                      38     
+006B 7800             39         MOV R0, #00H       ; tens/units
+006D 7900             40         MOV R1, #00H       ; hundreds/thousands
+                      41     
+006F 753000           42         MOV BUZZER_COUNT_ADDR, #00H
+0072 C2B1             43         CLR BUZZER_FLAG
+0074 7E00             44         MOV R6, #00H       ; display multiplex counter
+0076 7F10             45         MOV R7, #010H      ; double dabble loop counter
+                      46     
+                      47         ; Enable interrupts
+0078 D2AA             48         SETB EX1
+007A D28A             49         SETB IT1
+007C D2A9             50         SETB ET0
+007E D2AF             51         SETB EA
+                      52     
+                      53         ; Start timers
+0080 D28C             54         SETB TR0
+0082 D28E             55         SETB TR1
+A51 MACRO ASSEMBLER  FINAL_PROJ                                                           12/26/2025 01:26:05 PAGE     2
+
+                      56     
+0084                  57     MAIN_LOOP:
+0084 80FE             58         SJMP MAIN_LOOP
+                      59     
+                      60     ;-----------------------------------------
+                      61     ; DISPLAY FUNCTIONS
+0086                  62     DISPLAY:
+0086 E580             63         MOV A, SEG_SHIFT_PORT
+0088 03               64         RR A
+0089 F580             65         MOV SEG_SHIFT_PORT, A
+                      66     
+008B                  67     DISPLAY_DIGIT3:
+008B B47708           68         CJNE A, #01110111B, DISPLAY_DIGIT2
+008E E9               69         MOV A, R1
+008F 54F0             70         ANL A, #0F0H
+0091 C4               71         SWAP A
+0092 93               72         MOVC A, @A+DPTR
+0093 F5A0             73         MOV SEG_DATA_PORT, A
+0095 22               74         RET
+                      75     
+0096                  76     DISPLAY_DIGIT2:
+0096 B4BB07           77         CJNE A, #10111011B, DISPLAY_DIGIT1
+0099 E9               78         MOV A, R1
+009A 540F             79         ANL A, #0FH
+009C 93               80         MOVC A, @A+DPTR
+009D F5A0             81         MOV SEG_DATA_PORT, A
+009F 22               82         RET
+                      83     
+00A0                  84     DISPLAY_DIGIT1:
+00A0 B4DD08           85         CJNE A, #11011101B, DISPLAY_DIGIT0
+00A3 E8               86         MOV A, R0
+00A4 54F0             87         ANL A, #0F0H
+00A6 C4               88         SWAP A
+00A7 93               89         MOVC A, @A+DPTR
+00A8 F5A0             90         MOV SEG_DATA_PORT, A
+00AA 22               91         RET
+                      92     
+00AB                  93     DISPLAY_DIGIT0:
+00AB B4EE07           94         CJNE A, #11101110B, DEFAULT
+00AE E8               95         MOV A, R0
+00AF 540F             96         ANL A, #0FH
+00B1 93               97         MOVC A, @A+DPTR
+00B2 F5A0             98         MOV SEG_DATA_PORT, A
+00B4 22               99         RET
+                     100     
+00B5                 101     DEFAULT:
+00B5 22              102         RET
+                     103     
+                     104     ;-----------------------------------------
+                     105     ; DOUBLE DABBLE ALGORITHM
+00B6                 106     DOUBLE_DABBLE_ALGORITHM:
+00B6 7800            107         MOV R0, #00H
+00B8 7900            108         MOV R1, #00H
+00BA 7F10            109         MOV R7, #10H
+                     110     
+00BC                 111     ADJUST_LOOP:
+                     112         ; High byte adjustments
+00BC E9              113         MOV A, R1
+00BD 54F0            114         ANL A, #0F0H
+00BF C3              115         CLR C
+00C0 9450            116         SUBB A, #50H
+00C2 4004            117         JC NEXT_H
+00C4 E9              118         MOV A, R1
+00C5 2430            119         ADD A, #30H
+00C7 F9              120         MOV R1, A
+00C8                 121     NEXT_H:
+A51 MACRO ASSEMBLER  FINAL_PROJ                                                           12/26/2025 01:26:05 PAGE     3
+
+00C8 E9              122         MOV A, R1
+00C9 540F            123         ANL A, #0FH
+00CB C3              124         CLR C
+00CC 9405            125         SUBB A, #05H
+00CE 4004            126         JC NEXT_H2
+00D0 E9              127         MOV A, R1
+00D1 2403            128         ADD A, #03H
+00D3 F9              129         MOV R1, A
+00D4                 130     NEXT_H2:
+                     131         ; Low byte adjustments
+00D4 E8              132         MOV A, R0
+00D5 54F0            133         ANL A, #0F0H
+00D7 C3              134         CLR C
+00D8 9450            135         SUBB A, #50H
+00DA 4004            136         JC NEXT_L
+00DC E8              137         MOV A, R0
+00DD 2430            138         ADD A, #30H
+00DF F8              139         MOV R0, A
+00E0                 140     NEXT_L:
+00E0 E8              141         MOV A, R0
+00E1 540F            142         ANL A, #0FH
+00E3 C3              143         CLR C
+00E4 9405            144         SUBB A, #05H
+00E6 4004            145         JC SHIFT_LEFT
+00E8 E8              146         MOV A, R0
+00E9 2403            147         ADD A, #03H
+00EB F8              148         MOV R0, A
+                     149     
+00EC                 150     SHIFT_LEFT:
+00EC C3              151         CLR C
+00ED E58B            152         MOV A, TL1
+00EF 33              153         RLC A
+00F0 F58B            154         MOV TL1, A
+00F2 E58D            155         MOV A, TH1
+00F4 33              156         RLC A
+00F5 F58D            157         MOV TH1, A
+00F7 E8              158         MOV A, R0
+00F8 33              159         RLC A
+00F9 F8              160         MOV R0, A
+00FA E9              161         MOV A, R1
+00FB 33              162         RLC A
+00FC F9              163         MOV R1, A
+                     164     
+00FD DFBD            165         DJNZ R7, ADJUST_LOOP
+00FF 22              166         RET
+                     167     
+                     168     ;-----------------------------------------
+                     169     ; TIMER0 ISR
+0100                 170     TIMER0_ISR:
+0100 C0E0            171         PUSH ACC
+                     172     
+                     173         ; display tick
+0102 0E              174         INC R6
+0103 BE8F0B          175         CJNE R6, #08FH, SKIP_DISPLAY
+0106 7E00            176         MOV R6, #00H
+                     177             
+0108 20B116          178             JB BUZZER_FLAG, BUZZER_HANDLER
+010B 1186            179         ACALL DISPLAY
+010D 31A4            180             ACALL TRIG
+010F 315C            181         ACALL LED_INDICATOR
+                     182     
+0111                 183     SKIP_DISPLAY:
+                     184     
+                     185         ; buzzer handler
+0111 20B10D          186         JB BUZZER_FLAG, BUZZER_HANDLER
+                     187     
+A51 MACRO ASSEMBLER  FINAL_PROJ                                                           12/26/2025 01:26:05 PAGE     4
+
+                     188         ; ultrasonic time base
+0114 B2B6            189         CPL ULTRASONIC_TIMEBASE_PORT
+0116 758CFF          190         MOV TH0, #0FFH
+0119 758AE3          191         MOV TL0, #0E3H
+011C C28D            192         CLR TF0
+011E D0E0            193         POP ACC
+0120 32              194         RETI
+                     195     
+                     196     ;-----------------------------------------
+0121                 197     BUZZER_HANDLER:
+0121 C3              198         CLR C
+0122 E530            199         MOV A, BUZZER_COUNT_ADDR
+0124 94F0            200         SUBB A, #0F0H
+0126 500F            201         JNC BUZZER_STOP
+                     202     
+0128 B2B0            203         CPL BUZZER_PORT
+012A 0530            204         INC BUZZER_COUNT_ADDR
+012C 758CFD          205         MOV TH0, #0FDH
+012F 758A45          206         MOV TL0, #045H
+0132 C28D            207         CLR TF0
+0134 D0E0            208         POP ACC
+0136 32              209         RETI
+                     210     
+0137                 211     BUZZER_STOP:
+0137 753000          212         MOV BUZZER_COUNT_ADDR, #00H
+013A C2B1            213         CLR BUZZER_FLAG
+013C 78FF            214             MOV R0, #0FFH
+013E 79FF            215             MOV R1, #0FFH
+0140 758CFF          216         MOV TH0, #0FFH
+0143 758AE3          217         MOV TL0, #0E3H
+0146 C28D            218         CLR TF0
+0148 D0E0            219         POP ACC
+014A 32              220         RETI
+                     221     
+                     222     ;-----------------------------------------
+                     223     ; LOAD DISTANCE ISR
+014B                 224     LOAD_DISTANCE:
+014B C0E0            225         PUSH ACC
+014D C28E            226         CLR TR1
+014F 11B6            227         ACALL DOUBLE_DABBLE_ALGORITHM
+0151 758D00          228         MOV TH1, #00H
+0154 758B00          229         MOV TL1, #00H
+0157 D28E            230         SETB TR1
+0159 D0E0            231         POP ACC
+015B 32              232         RETI
+                     233     
+                     234     ;-----------------------------------------
+                     235     ; LED INDICATOR
+015C                 236     LED_INDICATOR:
+015C C3              237         CLR C
+015D E8              238         MOV A, R0
+015E 9405            239         SUBB A, #05H
+0160 5006            240         JNC L7
+0162 759000          241         MOV LED_PORT, #00000000B
+0165 D2B1            242         SETB BUZZER_FLAG
+0167 22              243         RET
+0168                 244     L7:
+0168 9405            245         SUBB A, #05H
+016A 5004            246         JNC L6
+016C 759001          247         MOV LED_PORT, #00000001B
+016F 22              248         RET
+0170                 249     L6:
+0170 9405            250         SUBB A, #05H
+0172 5004            251         JNC L5
+0174 759003          252         MOV LED_PORT, #00000011B
+0177 22              253         RET
+A51 MACRO ASSEMBLER  FINAL_PROJ                                                           12/26/2025 01:26:05 PAGE     5
+
+0178                 254     L5:
+0178 9405            255         SUBB A, #05H
+017A 5004            256         JNC L4
+017C 759007          257         MOV LED_PORT, #00000111B
+017F 22              258         RET
+0180                 259     L4:
+0180 9405            260         SUBB A, #05H
+0182 5004            261         JNC L3
+0184 75900F          262         MOV LED_PORT, #00001111B
+0187 22              263         RET
+0188                 264     L3:
+0188 9405            265         SUBB A, #05H
+018A 5004            266         JNC L2
+018C 75901F          267         MOV LED_PORT, #00011111B
+018F 22              268         RET
+0190                 269     L2:
+0190 9405            270         SUBB A, #05H
+0192 5004            271         JNC L1
+0194 75903F          272         MOV LED_PORT, #00111111B
+0197 22              273         RET
+0198                 274     L1:
+0198 9405            275         SUBB A, #05H
+019A 5004            276         JNC L0
+019C 75907F          277         MOV LED_PORT, #01111111B
+019F 22              278         RET
+01A0                 279     L0:
+01A0 7590FF          280         MOV LED_PORT, #0FFH
+01A3 22              281         RET
+                     282     
+                     283     ;-----------------------------------------
+                     284     ; TRIG FUNCTION
+01A4                 285     TRIG:
+01A4 B2B7            286         CPL ULTRASONIC_TRIG_PORT
+01A6 22              287         RET
+                     288     
+                     289     END
+A51 MACRO ASSEMBLER  FINAL_PROJ                                                           12/26/2025 01:26:05 PAGE     6
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E                   T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . . . . .  D ADDR   00E0H   A   
+ADJUST_LOOP. . . . . . .  C ADDR   00BCH   A   
+BUZZER_COUNT_ADDR. . . .  N NUMB   0030H   A   
+BUZZER_FLAG. . . . . . .  B ADDR   00B0H.1 A   
+BUZZER_HANDLER . . . . .  C ADDR   0121H   A   
+BUZZER_PORT. . . . . . .  B ADDR   00B0H.0 A   
+BUZZER_STOP. . . . . . .  C ADDR   0137H   A   
+DEFAULT. . . . . . . . .  C ADDR   00B5H   A   
+DISPLAY. . . . . . . . .  C ADDR   0086H   A   
+DISPLAY_DIGIT0 . . . . .  C ADDR   00ABH   A   
+DISPLAY_DIGIT1 . . . . .  C ADDR   00A0H   A   
+DISPLAY_DIGIT2 . . . . .  C ADDR   0096H   A   
+DISPLAY_DIGIT3 . . . . .  C ADDR   008BH   A   
+DOUBLE_DABBLE_ALGORITHM.  C ADDR   00B6H   A   
+EA . . . . . . . . . . .  B ADDR   00A8H.7 A   
+ET0. . . . . . . . . . .  B ADDR   00A8H.1 A   
+EX1. . . . . . . . . . .  B ADDR   00A8H.2 A   
+INIT . . . . . . . . . .  C ADDR   005AH   A   
+IT1. . . . . . . . . . .  B ADDR   0088H.2 A   
+L0 . . . . . . . . . . .  C ADDR   01A0H   A   
+L1 . . . . . . . . . . .  C ADDR   0198H   A   
+L2 . . . . . . . . . . .  C ADDR   0190H   A   
+L3 . . . . . . . . . . .  C ADDR   0188H   A   
+L4 . . . . . . . . . . .  C ADDR   0180H   A   
+L5 . . . . . . . . . . .  C ADDR   0178H   A   
+L6 . . . . . . . . . . .  C ADDR   0170H   A   
+L7 . . . . . . . . . . .  C ADDR   0168H   A   
+LED_INDICATOR. . . . . .  C ADDR   015CH   A   
+LED_PORT . . . . . . . .  D ADDR   0090H   A   
+LOAD_DISTANCE. . . . . .  C ADDR   014BH   A   
+MAIN_LOOP. . . . . . . .  C ADDR   0084H   A   
+NEXT_H . . . . . . . . .  C ADDR   00C8H   A   
+NEXT_H2. . . . . . . . .  C ADDR   00D4H   A   
+NEXT_L . . . . . . . . .  C ADDR   00E0H   A   
+P0 . . . . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . . . . .  D ADDR   00B0H   A   
+SEG_DATA . . . . . . . .  C ADDR   0050H   A   
+SEG_DATA_PORT. . . . . .  D ADDR   00A0H   A   
+SEG_SHIFT_PORT . . . . .  D ADDR   0080H   A   
+SHIFT_LEFT . . . . . . .  C ADDR   00ECH   A   
+SKIP_DISPLAY . . . . . .  C ADDR   0111H   A   
+TF0. . . . . . . . . . .  B ADDR   0088H.5 A   
+TH0. . . . . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . . . . .  D ADDR   008DH   A   
+TIMER0_ISR . . . . . . .  C ADDR   0100H   A   
+TL0. . . . . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . . . . .  B ADDR   0088H.6 A   
+TRIG . . . . . . . . . .  C ADDR   01A4H   A   
+ULTRASONIC_TIMEBASE_PORT  B ADDR   00B0H.6 A   
+ULTRASONIC_TRIG_PORT . .  B ADDR   00B0H.7 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
+A51 MACRO ASSEMBLER  FINAL_PROJ                                                           12/26/2025 01:26:05 PAGE     7
+

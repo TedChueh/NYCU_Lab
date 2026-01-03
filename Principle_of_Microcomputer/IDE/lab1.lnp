@@ -1,4 +1,4 @@
-".\lab12.1.obj" 
+".\Final_Proj.obj" 
 TO "lab1.1" 
 RAMSIZE(256) 
 CODE( 0X0000-0XFFFF )
